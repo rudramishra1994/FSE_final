@@ -1,0 +1,29 @@
+#sideBarNav {
+    height: 100% !important;
+    min-height: 100% !important;
+    width: 25% !important;
+    min-width: 25% !important;
+    border-right: 1px black dashed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  
+  .sideBarLink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100% !important;
+    font-size: 18px;
+    color: rgb(122, 122, 202);
+    border-radius: 5px;
+    padding: 10px 0 10px 0;
+    margin-top: 40px;
+    text-decoration: none;
+  }
+
+  .activeLink {
+    background-color: lightgrey; 
+    color: #000; 
+  }
