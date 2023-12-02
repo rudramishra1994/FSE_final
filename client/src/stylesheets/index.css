@@ -1,3 +1,202 @@
+
+
 body {
   margin: 0;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+  height: 100% !important;
+}
+#main {
+  display: flex;
+  height: 100vh !important;
+}  
+#mainBody,#tagPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  width: 100% !important;
+}
+
+#mainBodyPrimHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 85%;
+  margin-top: 25px;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+#askQuestionBtn,#postAnswer,#askQuestionBtnOnAnswerPage,#askQuestionBtnOnTagPage {
+  color: white;
+  background-color: cornflowerblue;
+  padding: 10px;
+}
+
+
+
+
+
+#answerList{
+ display: flex;
+ width: 100%;
+ flex-direction: column;
+ justify-content: space-evenly;
+  overflow: scroll;
+  overflow-y: auto;
+  border-bottom: 1px black dashed;
+}
+
+.answerCard {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100% !important;
+  padding-top: 20px;
+  padding-bottom: 10px;
+  border-top: 1px black dashed;
+}
+
+
+
+#username {
+  color: red;
+}
+
+.fullHeightAnswerForm {
+  display:flex;
+  padding-left: 20%;
+  flex-direction: column;
+  justify-content: center; /* Centers items vertically */
+  align-items: left; /* Centers items horizontally */
+  height: 100vh;
+  width: 100vh;
+}
+
+.buttonStyle{
+  color: white;
+  background-color: cornflowerblue;
+  padding: 10px;
+  /*display: inline-block;*/
+}
+  
+#answersHeader,#questionBody,#tagHeader {
+  display: flex;
+  padding: 20px;
+  align-items: flex-start;
+  justify-content: space-evenly;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 30px;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+#questionText{
+  font-weight:200;
+  font-size: 16px;
+  padding-right: 20px;
+  max-width: 70%;
+  align-items: stretch;
+  
+}
+#numAnswers,#numViews,#timeInfo{
+  padding-right: 20px;
+  font-size: 11px;
+  display: block;
+  flex-direction: row;
+  color: gray;
+}
+#authorAndTime{
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+}
+#authorOfQuestion{
+  color:red;
+}
+
+#answerButton{
+ align-self: flex-start;
+ padding: 20px;
+}
+
+.answerText {
+  font-size: 16px;
+  padding: 10px;
+  margin-bottom: 15px;
+  max-width: 75%;
+  color: #333;
+}
+
+.answerUserInfo {
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  padding: 10px;
+}
+
+.answerAuthor {
+  color: green;
+}
+
+.answerTime{
+  color:gray;
+}
+
+#tagCount{
+  color : gray;
+  font-size:medium;
+}
+
+#tagTitle{
+  font-size: 20px;
+  word-wrap: normal;
+}
+
+#tagHeader{
+  justify-content: space-between !important;
+}
+.tagNode{
+  /* border-top: 1px black dashed;
+  border-left: 1px black dashed; */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width : 150px;
+  height: 150px;
+  overflow: hidden;
+  box-sizing: border-box;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0,1);
+}
+
+.tagName{
+  color: blue;
+}
+
+.tagGrid{
+  width: 100%;
+  align-items: center;
+  justify-items: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;  
+}
+
+
+.requiredField{
+  color: red;
+}
+
+.answerNum{
+  padding-right: 20px;
+  font-size: 11px;
+  display: block;
+  flex-direction: row;
+  color: gray;
+
 }

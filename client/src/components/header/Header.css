@@ -1,0 +1,26 @@
+#header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100% !important;
+    border: 1px black solid;
+    padding: 10px;
+    margin: 0;
+    font-size: 25px;
+    font-weight: 900;
+    background-color: lightgrey;
+    height: 20% !important;
+  }
+  
+  #searchBar {
+    border: 1.5px black solid;
+    height: 26px;
+    position: relative;
+    min-width: 200px;
+  }
+
+  .headerText {
+    flex: 1;
+    text-align: center;
+  }
+  
