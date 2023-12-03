@@ -2,6 +2,8 @@
 const Question = require('./questions');
 const Answer = require('./answers');
 const Tag = require('./tags');
+const User = require('./user');
+const bcrypt = require('bcrypt');
 
 class ApplicationModel {
   static instance = null;
@@ -33,6 +35,16 @@ class ApplicationModel {
       asked_by: askedBy, 
       ask_date_time: askDate 
     });
+  }
+
+  static async addUser(username, email, password) {
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    return await User.create({
+      username,
+      password: hashedPassword,
+      email,
+    })
   }
 
   static async addNewTags(tagInput) {

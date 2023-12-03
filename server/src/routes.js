@@ -8,6 +8,9 @@ router.get('/questions', ApplicationController.getQuestions);
 // POST a new question
 router.post('/questions', ApplicationController.addQuestion);
 
+//Register a new user
+router.post('/register', ApplicationController.addUser);
+
 // GET questions by tag ID
 router.get('/questions/tag/:tid', ApplicationController.getQuestionsByTag);
 

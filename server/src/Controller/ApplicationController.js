@@ -19,6 +19,26 @@ class ApplicationController {
     }
   }
 
+  static async addUser(req, res) {
+    try {
+      const { username, email, password } = req.body;
+
+      await ApplicationModel.addUser(username, email, password);
+
+      res.status(201).json({ message: 'User registered successfully'});
+    } catch (error) {
+      console.error('Registration error:', error);
+
+      if (error.code === 11000) {
+        const field = Object.keys(error.keyPattern)[0];
+        let message = `An account with that ${field} already exists.`;
+        return res.status(409).json({ message }); // 409 Conflict
+      }
+
+      res.status(500).json({ message: 'Error registering new user' });
+    }
+  }
+
   static async addAnswer(req, res) {
     try {
       

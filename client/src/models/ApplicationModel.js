@@ -1,4 +1,8 @@
 import axios from 'axios';
+
+const serverAPI = axios.create({
+  baseURL: 'http://localhost:8000/api', 
+});
 class ApplicationModel {
   constructor() {
     this.api = axios.create({
@@ -128,6 +132,17 @@ class ApplicationModel {
     const response = await this.api.post('/tags/ids', { tagIds });
     return response.data;
   }
+
+  static async registerUser(username, email, password) {
+    try {
+      const response = await serverAPI.post('/register', { username, email, password });
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error('Registration failed:', error.response.data);
+      return { success: false, error: error.response.data.message || 'Registration failed' };
+    }
+  }
+
 }
 
 export default ApplicationModel;
