@@ -16,6 +16,15 @@ const QuestionCard = ({ question, tags,incrementViewCount,setCurrentPage,setCurr
     });
     };
 
+
+    const truncateText = (inputText) => {
+      if (inputText.length > 150) {
+        return inputText.substring(0, 147) + '...';
+      }
+      return inputText;
+    };
+
+
   return (
     <div className="questionCard">
         <div className="postStats">
@@ -23,10 +32,11 @@ const QuestionCard = ({ question, tags,incrementViewCount,setCurrentPage,setCurr
           <div>{`${question.views} views`}</div>
         </div>
       <div className='postTitle' onClick={() => handleQuestionClick(question._id)} >
-       
+      
 
           
           {question.title}
+          <div className='summary'>{truncateText(question.text)}</div>       
     
         <div className="tagList">
           {tags.map(tag => (

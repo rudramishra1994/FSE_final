@@ -22,13 +22,13 @@ const App = () => {
   const [questions, setQuestions] = useState([]);
   const [user, setUser] = useState(null);
   const [activeView, setActiveView] = useState('options');
-  
+  const [totalPages, setTotalPages] = useState(0); 
   //const [searchResult, setSearchResult] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
   const [currentPage, setCurrentPage] = useState('welcome');
   const [currentQID, setCurrentQID] = useState(null);
   const [currentTID, setCurrentTID] = useState(null);
+
 
 
   const addNewQuestion = async (title, text, tagInputs, askedBy, askDate ) => {
@@ -108,9 +108,9 @@ const App = () => {
 
  const handleQuestionNavClick=async ()=>{
   try{
-    const allQuestions  = await  appModel.getQuestionsWithTags('newest');
+    const data  = await  appModel.getQuestionsWithTags('newest');
     setCurrentPage('all-questions')
-    setQuestions(allQuestions);
+    setQuestions(data.questions);
     setSearchTerm("");
   }catch(error){
     console.error('Could not load all Questions:', error);
@@ -133,14 +133,15 @@ const App = () => {
     const fetchQuestions = async () => {
       try {
         const data = await appModel.getQuestionsWithTags("newest");
-        setQuestions(data);
+        setQuestions(data.questions);
+        setTotalPages(data.totalPages);
       } catch (error) {
         console.error('Failed to fetch questions:', error);
       }
     };
 
     fetchQuestions();
-  }, [user]);
+  }, []);
 
   return (
   
@@ -171,7 +172,8 @@ const App = () => {
           <div id = 'mainBody'>
           {currentPage === 'all-questions' && 
           <HomePage 
-          questions={questions} 
+          questions={questions}
+          setQuestions={setQuestions} 
           filterQuestion={filterQuestion} 
           incrementViewCount={incrementViewCount} 
           handleAskQuestionClick ={handleAskQuestionClick} 
@@ -180,6 +182,8 @@ const App = () => {
           setCurrentQID={setCurrentQID}
           user = {user}
           setUser = {setUser}
+          totalPages = {totalPages}
+          setTotalPages={setTotalPages}
           />}
 
 
@@ -212,7 +216,7 @@ const App = () => {
           <NewAnswerPage 
           qid={currentQID} 
           setCurrentPage={setCurrentPage}
-          setQuestions={setQuestions}/>}
+          />}
 
 
           {currentPage === 'tagPage' && 

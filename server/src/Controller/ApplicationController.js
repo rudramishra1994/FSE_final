@@ -83,6 +83,26 @@ class ApplicationController {
     }
   }
 
+  static async getQuestionWithTags(req, res) {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 5;
+      const order = req.params.order; 
+
+      const { questions, total } = await ApplicationModel.getQuestionsWithTags(order,null, page, limit);
+
+      res.json({
+        questions,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+      });
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  }
+
+
   static async getNewestQuestionsFirst(req, res) {
     try {
       const questions = await ApplicationModel.getNewestQuestionsFirst();
@@ -110,14 +130,14 @@ class ApplicationController {
     }
   }
 
-  static async getQuestionWithTags(req, res) {
-    try {
-      const questionWithTags = await ApplicationModel.getQuestionsWithTags(req.params.order);
-      res.json(questionWithTags);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  }
+  // static async getQuestionWithTags(req, res) {
+  //   try {
+  //     const questionWithTags = await ApplicationModel.getQuestionsWithTags(req.params.order);
+  //     res.json(questionWithTags);
+  //   } catch (error) {
+  //     res.status(500).json({ message: error.message });
+  //   }
+  // }
 
   static async incrementViewCount(req, res) {
     try {
@@ -158,7 +178,6 @@ class ApplicationController {
 
   static async getTagsByIds(req, res) {
     try {
-      // Assuming tag IDs are passed in the body of the request. Adjust as needed for your API design.
       const tags = await ApplicationModel.getTagsByIds(req.body.tagIds);
       res.json(tags);
     } catch (error) {

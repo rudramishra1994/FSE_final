@@ -98,17 +98,57 @@ class ApplicationModel {
     return response.data;
   }
 
-  async getQuestionsWithTags(filter) {
-    try {
-      const response = await this.api.get(`/questions/questionwithtags/${filter}`);
-      const questionsWithDates = this.convertDateStringToDate(response);
+  // async getQuestionsWithTags(filter) {
+  //   try {
+  //     const response = await this.api.get(`/questions/questionwithtags/${filter}`);
+  //     const questionsWithDates = this.convertDateStringToDate(response);
   
-      return questionsWithDates;
+  //     return questionsWithDates;
+  //   } catch (error) {
+  //     console.error('Error fetching questions with tags:', error);
+  //     throw error;
+  //   }
+  // }
+
+
+  async getQuestionsWithTags(filter, page=1, limit=5) {
+    try {
+      const response = await this.api.get(`/questions/questionwithtags/${filter}`, {
+        params: { page, limit }
+      });
+      const questionsWithDates = this.convertQuestionDateStringToDate(response.data.questions);
+    
+      // Include the total number of questions and any other metadata returned by the API
+      return {
+        questions: questionsWithDates,
+        total: response.data.total,
+        page:response.data.page,
+        totalPages:response.data.totalPages
+      };
     } catch (error) {
       console.error('Error fetching questions with tags:', error);
       throw error;
     }
   }
+
+  convertQuestionDateStringToDate(questions){
+    const questionsWithDates = questions.map(item => {
+      const askDateConverted = new Date(item.question.askDate);
+      if (isNaN(askDateConverted.getTime())) {
+        throw new Error(`Invalid date string received: ${item.question.askDate}`);
+      }
+      return {
+        ...item,
+        question: {
+          ...item.question,
+          askDate: askDateConverted,
+        },
+      };
+    });
+    return questionsWithDates;
+  }
+
+  
 
   convertDateStringToDate(response){
     const questionsWithDates = response.data.map(item => {

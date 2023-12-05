@@ -12,6 +12,7 @@ router.post('/login', ApplicationController.login);
 //User logout
 router.post('/logout',ApplicationController.logout);
 
+
 // POST a new question
 router.post('/questions', ApplicationController.addQuestion);
 

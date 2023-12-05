@@ -15,10 +15,18 @@ class ApplicationModel {
     ApplicationModel.instance = this;
   }
 
-  static async getQuestions() {
-    const questions = await Question.find({});
-    return questions.map(question => question.toObject({ virtuals: true }));
-  }
+  static async getQuestions(page, limit) {
+    const skip = (page - 1) * limit;
+    const questions = await Question.find({}).skip(skip).limit(limit);
+    const total = await Question.countDocuments();
+
+    return {
+        total,
+        page,
+        pageSize: questions.length,
+        data: questions.map(question => question.toObject({ virtuals: true })),
+    };
+}
   static async getAnswers() {
     const answers = await Answer.find({});
     return answers.map(answer => answer.toObject({ virtuals: true }));
@@ -112,18 +120,82 @@ class ApplicationModel {
     return await this.addTagToQuestion(questions) 
   }
 
-  static async getNewestQuestionsFirst() {
-    const questions = await Question.find({}).sort({ ask_date_time: -1 });
-    return questions.map(question => question.toObject({ virtuals: true }));
-  }
+  // static async getNewestQuestionsFirst() {
+  //   const questions = await Question.find({}).sort({ ask_date_time: -1 });
+  //   return questions.map(question => question.toObject({ virtuals: true }));
+  // }
 
-  static async getUnansweredQuestionsFirst() {
-    const questions = await Question.find({ answers: { $size: 0 } }).sort({ ask_date_time: -1 });
-    return questions.map(question => question.toObject({ virtuals: true }));
-  }
+  // static async getUnansweredQuestionsFirst() {
+  //   const questions = await Question.find({ answers: { $size: 0 } }).sort({ ask_date_time: -1 });
+  //   return questions.map(question => question.toObject({ virtuals: true }));
+  // }
 
-  static async getActiveQuestionsFirst() {
-    const mostActiveQuestions = await Question.aggregate([
+  // static async getActiveQuestionsFirst() {
+  //   const mostActiveQuestions = await Question.aggregate([
+  //     {
+  //       $lookup: {
+  //         from: 'answers', 
+  //         localField: 'answers',
+  //         foreignField: '_id',
+  //         as: 'fetchedAnswers'
+  //       }
+  //     },
+  //     {
+  //       $addFields: {
+  //         lastActivityDate: { $max: '$fetchedAnswers.ans_date_time' }
+  //       }
+  //     },
+  //     { $sort: { lastActivityDate: -1 } },
+  //     { $unset: 'fetchedAnswers' }
+  //   ]).exec();
+
+  //   return mostActiveQuestions.map(question => {
+  //     const questionDoc = new Question(question);
+  //     return questionDoc.toObject({ virtuals: true });
+  //   });
+  // }
+
+static async getNewestQuestionsFirst(page, limit) {
+  const totalCount = await Question.countDocuments();
+  const totalPages = Math.ceil(totalCount / limit);
+
+  // Validate page number
+  if (page < 1 || page > totalPages) {
+      throw new Error('Invalid page number');
+  }
+    const questions = await Question.find({})
+        .sort({ ask_date_time: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit);
+    return questions.map(question => question.toObject({ virtuals: true }));
+}
+
+static async getUnansweredQuestionsFirst(page, limit) {
+  const totalCount = await Question.countDocuments();
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Validate page number
+    if (page < 1 || page > totalPages) {
+        throw new Error('Invalid page number');
+    }
+  const questions = await Question.find({ answers: { $size: 0 } })
+      .sort({ ask_date_time: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+  return questions.map(question => question.toObject({ virtuals: true }));
+}
+
+
+
+static async getActiveQuestionsFirst(page, limit) {
+  const totalCount = await Question.countDocuments();
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Validate page number
+    if (page < 1 || page > totalPages) {
+        throw new Error('Invalid page number');
+    }
+      const mostActiveQuestions = await Question.aggregate([
       {
         $lookup: {
           from: 'answers', 
@@ -139,15 +211,15 @@ class ApplicationModel {
       },
       { $sort: { lastActivityDate: -1 } },
       { $unset: 'fetchedAnswers' }
-    ]).exec();
+    ]).skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
 
-    return mostActiveQuestions.map(question => {
-      const questionDoc = new Question(question);
-      return questionDoc.toObject({ virtuals: true });
-    });
-  }
-
-  
+  return mostActiveQuestions.map(question => {
+    const questionDoc = new Question(question);
+    return questionDoc.toObject({ virtuals: true });
+  });
+}
   
 
   static async incrementViewCount(questionId) {
@@ -158,27 +230,31 @@ class ApplicationModel {
     }
   }
 
-  static async getQuestionsWithTags(order,questions) {
+  static async getQuestionsWithTags(order, questions, page = 1, limit = 5) {
 
-    if(!questions){
+    if (!questions) {
       switch (order) {
         case 'newest':
-          questions = await this.getNewestQuestionsFirst();
+          questions = await this.getNewestQuestionsFirst(page, limit);
           break;
         case 'unanswered':
-          questions = await this.getUnansweredQuestionsFirst();
+          questions = await this.getUnansweredQuestionsFirst(page, limit);
           break;
         case 'active':
-          questions = await this.getActiveQuestionsFirst();
+          questions = await this.getActiveQuestionsFirst(page, limit);
           break;
         default:
           throw new Error('Invalid order specified');
       }
     }
    
-
+    const total = await Question.countDocuments();
     const results = await this.addTagToQuestion(questions);
-    return results;
+    return {
+      questions: results,
+      total
+    };
+
   }
 
   static async addTagToQuestion(questions) {
