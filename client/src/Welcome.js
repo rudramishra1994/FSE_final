@@ -15,7 +15,10 @@ const WelcomePage = ({setUser,setCurrentPage,activeView,setActiveView})=> {
  }
  const onBackClick =()=>{
     setActiveView('options');
-}
+  }
+ const continueAsGuest = ()=>{
+  setCurrentPage('all-questions');   
+ }
 
 
 
@@ -27,9 +30,9 @@ const WelcomePage = ({setUser,setCurrentPage,activeView,setActiveView})=> {
 
       </div>
       <div className='rightColumn'>
-        {activeView === 'options' && <OptionsView  onLogin={showLoginView} onRegister={showRegisterView}/>}
+        {activeView === 'options' && <OptionsView  onLogin={showLoginView} onRegister={showRegisterView} onGuest ={continueAsGuest}/>}
         {activeView === 'login' && <LoginForm onRegisterClick={showRegisterView} onBackClick={onBackClick} setUser={setUser}  setCurrentPage = {setCurrentPage}/>}
-        {activeView === 'register' && <RegisterForm onLoginClick={showLoginView} onBackClick={onBackClick} />}
+        {activeView === 'register' && <RegisterForm onLoginClick={showLoginView} onBackClick={onBackClick}  />}
       </div>
     </div>
     

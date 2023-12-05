@@ -4,21 +4,27 @@ import ApplicationModel from '../../models/ApplicationModel';
 // import { useLocation, useNavigate } from 'react-router-dom';
 
 
-const SideBarNav = ({currentPage,setCurrentPage,handleQuestionNavClick,setUser,setActiveView}) => {
+const SideBarNav = ({currentPage,setCurrentPage,handleQuestionNavClick,user,setUser,setActiveView}) => {
 
   const [logoutError ,setLogoutError] = useState('');
   const handleLogoutBtnClick=async (e)=>{
     e.preventDefault();
-      const result = await ApplicationModel.logout();
-      if (result.success) {
-        setLogoutError('');
-        setUser(null);
+      if(user){
+        const result = await ApplicationModel.logout();
+        if (result.success) {
+          setLogoutError('');
+          setUser(null);
+          setActiveView('login');
+          setCurrentPage('welcome');
+  
+        } else {
+          setLogoutError(result.error);
+        }
+      }else{
         setActiveView('login');
         setCurrentPage('welcome');
-
-      } else {
-        setLogoutError(result.error);
       }
+   
     
   }
 
@@ -47,7 +53,7 @@ const SideBarNav = ({currentPage,setCurrentPage,handleQuestionNavClick,setUser,s
           id="profilePage"
           onClick={() => setCurrentPage('profilePage')}
         >
-          Profile
+          Profile({user ? user.username : 'Guest'})
         </a>
 
         {/* <div style={{ flexGrow: 1 }}></div> */}

@@ -21,8 +21,7 @@ const App = () => {
   const headerText = "Fake Stack Overflow";
   const [questions, setQuestions] = useState([]);
   const [user, setUser] = useState(null);
-  const [activeView, setActiveView] = useState('options'); // options, login, register
-  
+  const [activeView, setActiveView] = useState('options');
   
   //const [searchResult, setSearchResult] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,14 +42,21 @@ const App = () => {
   };
 
   const handlePostAnswerClick = (qid) => {
-    setCurrentQID(qid);
-    setCurrentPage('new-answer');
+    if(user){
+      setCurrentQID(qid);
+      setCurrentPage('new-answer');
+    }else{
+      setActiveView('login');
+      setCurrentPage('welcome');
+    }
+ 
   }
   const handleAskQuestionClick = () => {
     if(user){
       setCurrentPage('ask-question');
     }else{
-      setCurrentPage
+      setActiveView('login');
+      setCurrentPage('welcome');
     }
     
   };
@@ -134,7 +140,7 @@ const App = () => {
     };
 
     fetchQuestions();
-  }, []);
+  }, [user]);
 
   return (
   
@@ -155,10 +161,13 @@ const App = () => {
           <SideBarNav 
           currentPage={currentPage} 
           setCurrentPage = {setCurrentPage} 
-          handleQuestionNavClick={handleQuestionNavClick} 
+          handleQuestionNavClick={handleQuestionNavClick}
+          user = {user} 
           setUser ={setUser}
           setActiveView={setActiveView}
            />
+
+
           <div id = 'mainBody'>
           {currentPage === 'all-questions' && 
           <HomePage 
@@ -172,15 +181,24 @@ const App = () => {
           user = {user}
           setUser = {setUser}
           />}
+
+
           {currentPage === 'ask-question' && 
           <AskQuestionForm 
           addNewQuestion={addNewQuestion} 
           setCurrentPage={setCurrentPage} />}
+
+
           {currentPage === 'questionDetail' && 
           <QuestionDetailPage 
           qid={currentQID} 
           handlePostAnswerClick={handlePostAnswerClick} 
-          handleAskQuestionClick = {handleAskQuestionClick}/>}
+          handleAskQuestionClick = {handleAskQuestionClick}
+          user = {user}
+          setUser = {setUser}
+          />}
+
+
           {/* {currentPage === 'searchResults' && 
           <SearchPage 
           questions={searchResult} 
@@ -195,16 +213,24 @@ const App = () => {
           qid={currentQID} 
           setCurrentPage={setCurrentPage}
           setQuestions={setQuestions}/>}
+
+
           {currentPage === 'tagPage' && 
           <TagPage
           handleTagCardClick={handleTagCardClick}
-          handleAskQuestionClick = {handleAskQuestionClick}/>}
+          handleAskQuestionClick = {handleAskQuestionClick}
+          user = {user}
+          setUser = {setUser}
+          />}
+
+
           {currentPage === 'tagged-question' && 
           <TaggedQuestionPage 
           incrementViewCount={incrementViewCount} 
           tid ={currentTID}
           setCurrentPage={setCurrentPage} 
-          setCurrentQID={setCurrentQID}/>}
+          setCurrentQID={setCurrentQID}
+          />}
         </div>
     
         
