@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './stylesheets/welcome.css';
 import OptionsView from './components/WelcomePage/optionviews';
 import LoginForm from './components/WelcomePage/login';
 import RegisterForm from './components/WelcomePage/register';
 import illustration from './images/welcome.jpg';
-const WelcomePage = ()=> {
-  const [activeView, setActiveView] = useState('options'); // options, login, register
-  //const showOptionsView = () => setActiveView('options');
+const WelcomePage = ({setUser,setCurrentPage,activeView,setActiveView})=> {
+  
   const showLoginView = () => {
     setActiveView('login');
   }
@@ -29,7 +28,7 @@ const WelcomePage = ()=> {
       </div>
       <div className='rightColumn'>
         {activeView === 'options' && <OptionsView  onLogin={showLoginView} onRegister={showRegisterView}/>}
-        {activeView === 'login' && <LoginForm onRegisterClick={showRegisterView} onBackClick={onBackClick} />}
+        {activeView === 'login' && <LoginForm onRegisterClick={showRegisterView} onBackClick={onBackClick} setUser={setUser}  setCurrentPage = {setCurrentPage}/>}
         {activeView === 'register' && <RegisterForm onLoginClick={showLoginView} onBackClick={onBackClick} />}
       </div>
     </div>

@@ -143,6 +143,24 @@ class ApplicationModel {
     }
   }
 
+  static async login(username,password){
+    try {
+      const response = await serverAPI.post('/login', {username,password});
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: error.response.data.message || 'login failed' };
+    }
+  }
+
+  static async logout(){
+    try {
+      const response = await serverAPI.post('/logout', { withCredentials: true } );
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: error.response.data.message || 'logout failed' };
+    }
+  }
+
 }
 
 export default ApplicationModel;

@@ -1,9 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './SideNavBar.css';
+import ApplicationModel from '../../models/ApplicationModel';
 // import { useLocation, useNavigate } from 'react-router-dom';
 
 
-const SideBarNav = ({currentPage,setCurrentPage,handleQuestionNavClick}) => {
+const SideBarNav = ({currentPage,setCurrentPage,handleQuestionNavClick,setUser,setActiveView}) => {
+
+  const [logoutError ,setLogoutError] = useState('');
+  const handleLogoutBtnClick=async (e)=>{
+    e.preventDefault();
+      const result = await ApplicationModel.logout();
+      if (result.success) {
+        setLogoutError('');
+        setUser(null);
+        setActiveView('login');
+        setCurrentPage('welcome');
+
+      } else {
+        setLogoutError(result.error);
+      }
+    
+  }
+
   return (
     <div id="sideBarNav">
       <a
@@ -22,7 +40,31 @@ const SideBarNav = ({currentPage,setCurrentPage,handleQuestionNavClick}) => {
       >
         Tags
       </a>
+
+      <a
+          href="#"
+          className={`sideBarLink ${ currentPage.includes('profilePage') || currentPage.includes('asked-question') ? 'activeLink' : ''}`}
+          id="profilePage"
+          onClick={() => setCurrentPage('profilePage')}
+        >
+          Profile
+        </a>
+
+        {/* <div style={{ flexGrow: 1 }}></div> */}
+
+      {/* Logout Button */}
+      <a
+        href="#"
+        className="logoutButton"
+        id="logoutButton"
+        onClick={handleLogoutBtnClick}
+      >
+        Logout
+      </a>
+      {logoutError && <div className='error'>{logoutError}</div>}
     </div>
+    
+
   );
 };
 

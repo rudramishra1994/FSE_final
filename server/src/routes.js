@@ -5,6 +5,13 @@ const ApplicationController = require('./Controller/ApplicationController');
 // GET all questions
 router.get('/questions', ApplicationController.getQuestions);
 
+// User Login
+router.post('/login', ApplicationController.login);
+
+
+//User logout
+router.post('/logout',ApplicationController.logout);
+
 // POST a new question
 router.post('/questions', ApplicationController.addQuestion);
 

@@ -53,8 +53,7 @@ const RegisterForm = ({ onLoginClick,onBackClick}) =>{
           newErrors.repassword = 'Passwords do not match';
         }
       
-        // Here, you would include your API call to check if the email and password already exist
-        // If they do, add errors to newErrors
+
       
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0; // Return true if no errors

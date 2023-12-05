@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './stylesheets/index.css';
-//import App from './App';
-import WelcomePage from './Welcome';
+import App from './App';
+// import WelcomePage from './Welcome';
 
-ReactDOM.render(<WelcomePage />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById('root'));

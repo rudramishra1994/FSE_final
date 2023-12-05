@@ -174,3 +174,7 @@
     height: 100%;
     justify-content: space-evenly;
   }
+
+  .error{
+    color: red;
+  }

@@ -1,4 +1,5 @@
 const ApplicationModel = require('../../models/ApplicationModel');
+const User = require('../../models/user');
 
 class ApplicationController {
   static async getQuestions(req, res) {
@@ -162,6 +163,44 @@ class ApplicationController {
       res.json(tags);
     } catch (error) {
       res.status(500).send(error.message);
+    }
+  }
+
+  static async login(req, res) {
+    try {
+      const { username, password } = req.body;
+      const user = await User.loginUser(username, password);
+
+      req.session.userId = user._id; 
+      res.json({user});
+    } catch (error) {
+      console.error('Login error:', error.message);
+      res.status(401).json({ message: error.message || 'An error occurred while attempting to log in' });
+    }
+  }
+
+  static async logout(req, res) {
+    try {
+     
+      if (req.session) {
+        req.session.destroy(err => {
+          if (err) {
+        
+            console.error('Logout error:', err);
+            res.status(500).json({ message: 'Error occurred during logout' });
+          } else {
+    
+            res.clearCookie('connect.sid'); 
+            res.json({ message: 'Successfully logged out' });
+          }
+        });
+      } else {
+     
+        res.json({ message: 'No active session' });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      res.status(500).json({ message: 'An error occurred while attempting to log out' });
     }
   }
 }
