@@ -228,6 +228,46 @@ class ApplicationController {
       res.status(500).json({ message: 'An error occurred while attempting to log out' });
     }
   }
+
+
+
+
+  static async getCommentsByQid(req, res) {
+    try {
+      const qid = req.query.qid;
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 5;
+      const { comments, total } = await ApplicationModel.getCommentsByQuestionId(qid, page, limit);
+
+      res.json({
+        comments,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+      });
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  }
+
+
+  static async getCommentsByAnsId(req, res) {
+    try {
+      const aid = req.query.aid;
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 5;
+      const { comments, total } = await ApplicationModel.getCommentsByAnsId(aid, page, limit);
+
+      res.json({
+        comments,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+      });
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  }
 }
 
 module.exports = ApplicationController;

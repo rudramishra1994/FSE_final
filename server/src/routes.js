@@ -62,4 +62,10 @@ router.get('/questions/tags', ApplicationController.getQuestionsWithTags);
 // GET tags by ID - Assuming you have an endpoint that requires fetching tags by their IDs
 router.post('/tags/ids', ApplicationController.getTagsByIds);
 
+
+
+router.get('/question/comments',ApplicationController.getCommentsByQid);
+
+router.get('/answer/comments',ApplicationController.getCommentsByAnsId);
+
 module.exports = router;

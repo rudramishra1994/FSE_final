@@ -3,6 +3,7 @@ const Question = require('./questions');
 const Answer = require('./answers');
 const Tag = require('./tags');
 const User = require('./user');
+const Comment = require('./comment');
 const bcrypt = require('bcrypt');
 
 class ApplicationModel {
@@ -379,6 +380,79 @@ static async getActiveQuestionsFirst(page, limit) {
   static async getTagsByIds(tagIds) {
     return await Tag.find({ _id: { $in: tagIds } });
   }
+
+
+  static async getCommentsByQuestionId(qid, page, limit) {
+    try {
+        const skip = (page - 1) * limit;
+        const questionForCount = await Question.findById(qid).exec();
+        // Populate comments directly in the query
+        const question = await Question.findById(qid)
+                                       .populate({
+                                           path: 'comments',
+                                           model: Comment, // Ensure this is the correct model name
+                                           options: {
+                                               sort: { 'dateOfComment': -1 }, // Sort by date in descending order
+                                               skip,
+                                               limit
+                                           }
+                                       })
+                                       .exec();
+
+        if (!question) {
+            throw new Error('Question not found');
+        }
+
+        const totalComments = questionForCount.comments.length;
+
+        // Return the comments and total comment count
+        return {
+            comments: question.comments,
+            total: totalComments
+        };
+    } catch (error) {
+        console.error('Error in getCommentsByQuestionId:', error);
+        throw error;
+    }
+}
+
+
+static async getCommentsByAnsId(ansId, page, limit) {
+  try {
+      const skip = (page - 1) * limit;
+      const answerForCount = await Answer.findById(ansId).exec();
+      // Populate comments directly in the query
+      const answer = await Answer.findById(ansId)
+                                     .populate({
+                                         path: 'comments',
+                                         model: Comment, // Ensure this is the correct model name
+                                         options: {
+                                             sort: { 'dateOfComment': -1 }, // Sort by date in descending order
+                                             skip,
+                                             limit
+                                         }
+                                     })
+                                     .exec();
+
+      if (!answer) {
+          throw new Error('Answer not found');
+      }
+
+      const totalComments = answerForCount.comments.length;
+
+      // Return the comments and total comment count
+      return {
+          comments: answer.comments,
+          total: totalComments
+      };
+  } catch (error) {
+      console.error('Error in getCommentsByQuestionId:', error);
+      throw error;
+  }
+}
+
+
+
 }
 
 module.exports = ApplicationModel;

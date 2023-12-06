@@ -2,13 +2,23 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    height:100vh;
     margin: 0;
     padding: 0;
     width: 100% !important;
   }
 
+  .questionDetailContainer{
+    display: flex;
+    flex-direction: column;
+    height: 70%; /* Adjust the height as needed */
+    width: 100%;
+    overflow-y: auto;
+  }
+
   .answerListContainer{
-    height: 50vh; /* Adjust the height as needed */
+  
+    height: 50%; /* Adjust the height as needed */
     width: 100%;
     overflow-y: auto; /* This enables vertical scrolling */
     border: 1px black;
@@ -35,6 +45,9 @@
   }
   .pagination {
     display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-items: center;
     justify-content: space-between;
     padding: 10px;
   }
@@ -48,3 +61,73 @@
     cursor: not-allowed;
     opacity: 0.5;
   }
+
+.questionMetaInfo{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.vote-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+ 
+  
+}
+
+.vote-arrow {
+  background-color: rgb(197, 192, 192);
+  border: 1px solid grey;
+  cursor: pointer;
+  box-shadow: 0 2px black;
+  color:black;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.vote-arrow:hover {
+  color: #000;
+}
+
+.vote-arrow:not(:disabled):hover  {
+  background-color: #0056b3;
+  box-shadow: 0 2px #003d75; /* Even darker for pressed effect */
+  transform: translateY(1px); /* Pushes the button down */
+}
+
+.vote-arrow:active {
+  box-shadow: 0 1px #003d75;
+  transform: translateY(2px); /* More pushed down effect */
+}
+
+.vote-arrow:disabled {
+  color: #9d9a9a;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+
+
+
+
+.up-arrow {
+  /* Additional styling for up-arrow if needed */
+}
+
+.down-arrow {
+  /* Additional styling for down-arrow if needed */
+}
+
+.vote-count {
+  padding: 5px 10px;
+  color: #555;
+  font-size: 11px;
+}
+.view-count {
+  padding: 5px 10px;
+  color: #555;
+  font-size: 11px;
+}

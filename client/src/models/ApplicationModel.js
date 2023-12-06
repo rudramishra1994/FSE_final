@@ -146,6 +146,84 @@ class ApplicationModel {
     }
   }
 
+  async getCommentsForQuestion(qid, page=1, limit=5) {
+    try {
+      const response = await this.api.get(`/question/comments`, {
+        params: { qid, page, limit, }
+      });
+      const commentsWithDates = response.data.comments.map(item => {
+        const askDateConverted = new Date(item.dateOfComment);
+        if (isNaN(askDateConverted.getTime())) {
+          throw new Error(`Invalid date string received: ${item.question.askDate}`);
+        }
+        return {
+          ...item,
+          dateOfComment : askDateConverted
+        };
+      });
+    
+      // Include the total number of questions and any other metadata returned by the API
+      return {
+        comments: commentsWithDates,
+        total: response.data.total,
+        page:response.data.page,
+        totalPages:response.data.totalPages
+      };
+    } catch (error) {
+      console.error('Error fetching questions with tags:', error);
+      throw error;
+    }
+  }
+
+  async getCommentsForAnswer(aid, page=1, limit=5) {
+    try {
+      const response = await this.api.get(`/answer/comments`, {
+        params: { aid, page, limit, }
+      });
+      const commentsWithDates = response.data.comments.map(item => {
+        const askDateConverted = new Date(item.dateOfComment);
+        if (isNaN(askDateConverted.getTime())) {
+          throw new Error(`Invalid date string received: ${item.question.askDate}`);
+        }
+        return {
+          ...item,
+          dateOfComment : askDateConverted
+        };
+      });
+    
+      // Include the total number of questions and any other metadata returned by the API
+      return {
+        comments: commentsWithDates,
+        total: response.data.total,
+        page:response.data.page,
+        totalPages:response.data.totalPages
+      };
+    } catch (error) {
+      console.error('Error fetching questions with tags:', error);
+      throw error;
+    }
+  }
+
+  convertCommentDateStringToDate(comments){
+    const questionsWithDates = comments.map(item => {
+      const askDateConverted = new Date(item.question.askDate);
+      if (isNaN(askDateConverted.getTime())) {
+        throw new Error(`Invalid date string received: ${item.question.askDate}`);
+      }
+      return {
+        ...item,
+        question: {
+          ...item.question,
+          askDate: askDateConverted,
+        },
+      };
+    });
+    return questionsWithDates;
+  }
+
+
+
+
   convertQuestionDateStringToDate(questions){
     const questionsWithDates = questions.map(item => {
       const askDateConverted = new Date(item.question.askDate);
