@@ -85,10 +85,12 @@ const QuestionDetailPage = ({qid,handlePostAnswerClick,handleAskQuestionClick,us
        
         <div className='answerListContainer'>
         {loading ? (
-          <div>Loading questions...</div>
+          <div>Loading answers...</div>
         ) : loadingError ? (
-          <div className="error">{loadingError}</div> // Display error message
-        ) : (
+          <div className="error">{loadingError}</div> 
+        ) : answers.length === 0 ? (
+          <div className="noComments">No Answers to display.</div> 
+      ) : (
           <AnswerList answers={answers} user={user}/>
         )}
 
