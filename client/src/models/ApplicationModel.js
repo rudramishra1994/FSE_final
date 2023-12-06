@@ -45,20 +45,35 @@ class ApplicationModel {
     return response.data;
   }
 
-  async getAnswersForQuestion(qid) {
-    const response = await this.api.get(`/questions/${qid}/answers`);
-    const answers = response.data.map(answer => {
-      const ansDateConverted = new Date(answer.ansDate);
-      if (isNaN(ansDateConverted.getTime())) {
-        throw new Error(`Invalid date string received: ${answer.ansDate}`);
-      }
+  async getAnswersForQuestion(qid,page =1,limit =5) {
+    //const response = await this.api.get(`/questions/${qid}/answers`);
+    try{
+      const response = await this.api.get(`/questions/${qid}/answers`, {
+        params: { page, limit }
+      });
+      const answers = response.data.answers.map(answer => {
+        const ansDateConverted = new Date(answer.ansDate);
+        if (isNaN(ansDateConverted.getTime())) {
+          throw new Error(`Invalid date string received: ${answer.ansDate}`);
+        }
+        return {
+          ...answer,
+          ansDate: ansDateConverted
+        };
+      });
+  
       return {
-        ...answer,
-        ansDate: ansDateConverted
-      };
-    });
-
-    return answers;
+        answers:answers,
+        total:response.data.total,
+        page:response.data.page,
+        totalPages:response.data.totalPages
+      }
+    }catch(error){
+      console.error('Error fetching questions with tags:', error);
+      throw error;
+    }
+  
+    
   }
 
   async getQuestionsByTag(tid) {

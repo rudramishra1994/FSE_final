@@ -7,29 +7,56 @@ import ApplicationModel from '../../models/ApplicationModel';
 import './QuestionDetailPage.css'
 
 const appModel = new ApplicationModel();
+const PAGE_SIZE = 5; 
 const QuestionDetailPage = ({qid,handlePostAnswerClick,handleAskQuestionClick}) => {
   // const { qid } = useParams();
   const [question,setQuestion] = useState(null);
   const [answers,setAnswers] = useState(null);
+     
+  const [loading, setLoading] = useState(false);
+  const [currentPaginationPage, setCurrentPaginationPage] = useState(1);
+  const [loadingError,setLoadingError] = useState('');
+  const [totalPages,setTotalPages] = useState(0);
   // const navigate = useNavigate();
+
+  
 
   const handlePostAnswerBtnClick = () =>{
     handlePostAnswerClick(qid);
   }
-
+  const fetchData = async (page) => {
+    setLoading(true)
+    try {
+      const q = await appModel.getQuestionById(qid);
+      const data = await appModel.getAnswersForQuestion(qid,page,PAGE_SIZE);
+      setTotalPages(data.totalPages)
+      setQuestion(q);
+      setAnswers(data.answers);
+    } catch (error) {
+      setLoadingError(error.message||'Failed to fetch question or answers:');
+    }finally{
+      setLoading(false);
+    }
+  };
   useEffect(() =>{
-    const fetchData = async () => {
-      try {
-        const q = await appModel.getQuestionById(qid);
-        const aList = await appModel.getAnswersForQuestion(qid);
-        setQuestion(q);
-        setAnswers(aList);
-      } catch (error) {
-        console.error('Failed to fetch question or answers:', error);
-      }
-    };
-    fetchData();
-  },[])
+    fetchData(currentPaginationPage);
+  },[currentPaginationPage])
+
+  const handleNextClick = () => {
+    const nextPage = currentPaginationPage + 1;
+    if (nextPage <= totalPages) {
+      setCurrentPaginationPage(nextPage);
+    }
+  };
+
+  const handlePrevClick = () => {
+    const prevPage = currentPaginationPage - 1;
+    if (prevPage > 0) {
+      setCurrentPaginationPage(prevPage);
+    }
+  };
+
+
   
   return (
     <div className = "questiondetailpage">
@@ -37,7 +64,22 @@ const QuestionDetailPage = ({qid,handlePostAnswerClick,handleAskQuestionClick}) 
       <>
         <AnswerHeader numAnswers={question.ansIds.length} questionTitle={question.title} handleAskQuestionClick={handleAskQuestionClick} />
         <QuestionBody question={question} />
-        <AnswerList answers={answers}/>
+        <div className='answerListContainer'>
+        {loading ? (
+          <div>Loading questions...</div>
+        ) : loadingError ? (
+          <div className="error">{loadingError}</div> // Display error message
+        ) : (
+          <AnswerList answers={answers}/>
+        )}
+
+         
+        </div>
+        <div className="pagination">
+        <button onClick={handlePrevClick} disabled={currentPaginationPage === 1}>Prev</button>
+        <button onClick={handleNextClick} disabled={currentPaginationPage === totalPages}>Next</button>
+      </div>
+      
         <div id="answerButton">
             <button id="postAnswer" onClick={handlePostAnswerBtnClick} >Answer Question</button>
         </div>

@@ -67,8 +67,14 @@ class ApplicationController {
 
   static async getAnswersForQuestion(req, res) {
     try {
-      const answers = await ApplicationModel.getAnswersForQuestion(req.params.qid);
-      res.json(answers);
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 5;
+      const {answers,total} = await ApplicationModel.getAnswersForQuestion(req.params.qid,page,limit);
+      res.json({answers,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+      });
     } catch (error) {
       res.status(500).send(error.message);
     }

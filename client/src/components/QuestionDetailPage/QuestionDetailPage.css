@@ -6,3 +6,45 @@
     padding: 0;
     width: 100% !important;
   }
+
+  .answerListContainer{
+    height: 50vh; /* Adjust the height as needed */
+    width: 100%;
+    overflow-y: auto; /* This enables vertical scrolling */
+    border: 1px black;
+  }
+
+  @media (min-width: 1024px) {
+    .answerListContainer {
+      height: 600px; /* taller on larger screens */
+    }
+  }
+  
+  /* Medium screens */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .answerListContainer {
+      height: 500px; /* medium height for medium screens */
+    }
+  }
+  
+  /* Smaller screens */
+  @media (max-width: 767px) {
+    .answerListContainer {
+      height: 300px; /* shorter on small screens */
+    }
+  }
+  .pagination {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+  }
+  
+  .pagination button {
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  
+  .pagination button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }

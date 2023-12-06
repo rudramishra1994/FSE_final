@@ -88,11 +88,18 @@ body {
   align-items: flex-start;
   justify-content: space-evenly;
   flex-direction: row;
-  align-items: flex-start;
+
   width: 100%;
   margin-top: 30px;
   font-size: 20px;
   font-weight: 900;
+}
+
+.questionTextContainer{
+  display: flex;
+  align-items:center;
+  flex-direction: column;
+  max-width: 80%;
 }
 
 #questionText{

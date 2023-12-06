@@ -9,7 +9,7 @@ const appModel = new ApplicationModel
 
 const PAGE_SIZE = 5; 
 const HomePage = ({questions,setQuestions,filterQuestion,searchTerm,incrementViewCount,handleAskQuestionClick,setCurrentPage,setCurrentQID, user,
-  setUser,totalPages,setTotalPages}) => {
+  setUser,totalPages,setTotalPages,totalQuestionCount,setTotalQuestionCount}) => {
    
   const [loading, setLoading] = useState(false);
   const [currentPaginationPage, setCurrentPaginationPage] = useState(1);
@@ -18,7 +18,7 @@ const HomePage = ({questions,setQuestions,filterQuestion,searchTerm,incrementVie
     setLoading(true);
     try {
       const data = await appModel.getQuestionsWithTags("newest",page,PAGE_SIZE);
-
+      setTotalQuestionCount(data.total);
       setQuestions(data.questions);
       setTotalPages(data.totalPages);
     } catch (error) {
@@ -50,7 +50,7 @@ const HomePage = ({questions,setQuestions,filterQuestion,searchTerm,incrementVie
   return (
     <div className="homepage">
       <MainBodyPrimHeader searchTerm={searchTerm} handleAskQuestionClick={handleAskQuestionClick} user={user} setCurrentPage={setCurrentPage} setUser={setUser}/>
-      <MainBodySecHeader numberOfQuestions={questions.length} filterQuestion={filterQuestion} />
+      <MainBodySecHeader numberOfQuestions={totalQuestionCount} filterQuestion={filterQuestion} />
       <div className="questionListContainer">
         {loading ? (
           <div>Loading questions...</div>

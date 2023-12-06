@@ -92,26 +92,64 @@ class ApplicationModel {
     return question ? question.toObject({ virtuals: true }) : null;
   }
 
-  static async getAnswersForQuestion(qid) {
+  // static async getAnswersForQuestion(qid,page,limit) {
+  //   try {
+  //     const question = await Question.findById(qid)
+  //                                     .populate({
+  //                                         path: 'answers', 
+  //                                         options: { sort: { 'ans_date_time': -1 } }
+  //                                     })
+  //                                     .exec();
+  
+  //     if (!question) {
+  //       return [];
+  //     }
+  //     const answers = question.answers.map(answer => answer.toObject({ virtuals: true }));
+  
+  //     return answers;
+  //   } catch (error) {
+  //     console.error("Error in getAnswersForQuestion:", error);
+  //     throw error;
+  //   }
+  // }
+
+  static async getAnswersForQuestion(qid, page, limit) {
     try {
-      const question = await Question.findById(qid)
-                                      .populate({
-                                          path: 'answers', 
-                                          options: { sort: { 'ans_date_time': -1 } }
-                                      })
-                                      .exec();
-  
-      if (!question) {
-        return [];
-      }
-      const answers = question.answers.map(answer => answer.toObject({ virtuals: true }));
-  
-      return answers;
+        // Find the question without populating answers to get the total count
+        const questionForCount = await Question.findById(qid).exec();
+
+        if (!questionForCount || !questionForCount.answers) {
+            return { answers: [], totalAnswers: 0 };
+        }
+
+        const total = questionForCount.answers.length;
+
+        
+        const questionWithPaginatedAnswers = await Question.findById(qid)
+                                                           .populate({
+                                                               path: 'answers',
+                                                               options: { 
+                                                                   sort: { 'ans_date_time': -1 },
+                                                                   limit: limit,
+                                                                   skip: limit * (page - 1)
+                                                               }
+                                                           })
+                                                           .exec();
+
+        if (!questionWithPaginatedAnswers) {
+            return { answers: [], total: 0 };
+        }
+
+       
+        const answers = questionWithPaginatedAnswers.answers.map(answer => answer.toObject({ virtuals: true }));
+
+        return { answers, total };
     } catch (error) {
-      console.error("Error in getAnswersForQuestion:", error);
-      throw error;
+        console.error("Error in getAnswersForQuestion:", error);
+        throw error;
     }
-  }
+}
+
 
 
   static async getQuestionsByTag(tid) {

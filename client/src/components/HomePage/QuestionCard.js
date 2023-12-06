@@ -30,6 +30,7 @@ const QuestionCard = ({ question, tags,incrementViewCount,setCurrentPage,setCurr
         <div className="postStats">
           <div>{`${question.ansIds.length} answers`}</div>
           <div>{`${question.views} views`}</div>
+          <div>{`${question.votes} votes`}</div>
         </div>
       <div className='postTitle' onClick={() => handleQuestionClick(question._id)} >
       
