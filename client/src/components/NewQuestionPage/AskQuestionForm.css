@@ -13,12 +13,7 @@
     font-size: 1.2em;
   }
   
-  
-  .flexContainer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+
  
   #submitQuestion{
     width: fit-content;
