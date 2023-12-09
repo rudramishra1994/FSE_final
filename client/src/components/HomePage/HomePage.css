@@ -34,6 +34,11 @@
 #sortBtn {
     background: white;
 }
+.activeFilter {
+  background-color: blue; /* Or any other style */
+  color: white;
+  /* Add other styling as needed */
+}
 
 #btnGrp {
     margin-right: 100px;
