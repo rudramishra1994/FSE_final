@@ -1,41 +1,27 @@
 import React, { useState, useEffect } from "react";
-import MainBodyPrimHeader from "./MainBodyPrimHeader";
-import MainBodySecHeader from "./MainBodySecHeader";
-import QuestionList from "./QuestionList";
-import "./HomePage.css";
+import UserQuestionList from "./UserQuestionList";
+import "../HomePage/HomePage.css";
 import ApplicationModel from "../../models/ApplicationModel";
 
 const appModel = new ApplicationModel();
 
 const PAGE_SIZE = 5;
-const SearchPage = ({
-  questions,
-  setQuestions,
-  searchTerm,
-  incrementViewCount,
-  handleAskQuestionClick,
-  setCurrentPage,
-  setCurrentQID,
-  user,
-  setUser,
-}) => {
+const UserQuestionPage = () => {
   const [currentPaginationPage, setCurrentPaginationPage] = useState(1);
   const [loadingError, setLoadingError] = useState("");
   const [totalPages, setTotalPages] = useState(0);
-  const [totalQuestionCount, setTotalQuestionCount] = useState(0);
-  const [currentFilter, setCurrentFilter] = useState("newest");
+  const [questions,setQuestions] = useState([]);
+  const [currentQID,setCurrentQID] = useState('');
+  
 
   const fetchQuestions = async (page) => {
     setLoadingError("");
-    const term = searchTerm.toLowerCase();
     try {
-      const data = await appModel.searchQuestions(
-        term,
-        'newest',
+      const data = await appModel.getQuestionsWithTagsForCurrentUser(
+        "newest",
         page,
         PAGE_SIZE
       );
-      setTotalQuestionCount(data.total);
       setQuestions(data.questions);
       setTotalPages(data.totalPages);
     } catch (error) {
@@ -57,24 +43,7 @@ const SearchPage = ({
     }
   };
 
-  const filterQuestion = async (filter) => {
-    try {
-      const data = await appModel.searchQuestions(
-        searchTerm.toLowerCase(),
-        filter.toLowerCase(),
-        1,
-        PAGE_SIZE
-      );
-      setTotalQuestionCount(data.totalQuestionCount);
-      setQuestions(data.questions);
-      setCurrentFilter(filter.toLowerCase());
-      setTotalPages(data.totalPages);
-      setTotalQuestionCount(data.total);
-      setCurrentPaginationPage(1);
-    } catch (error) {
-      console.error("Could not Filter Question:", error);
-    }
-  };
+
 
   useEffect(() => {
     fetchQuestions(currentPaginationPage);
@@ -82,26 +51,15 @@ const SearchPage = ({
 
   return (
     <div className="homepage">
-      <MainBodyPrimHeader
-        searchTerm={searchTerm}
-        handleAskQuestionClick={handleAskQuestionClick}
-        user={user}
-        setCurrentPage={setCurrentPage}
-        setUser={setUser}
-      />
-      <MainBodySecHeader
-        numberOfQuestions={totalQuestionCount}
-        filterQuestion={filterQuestion}
-        currentFilter={currentFilter}
-      />
+      <div>Showing {currentPaginationPage}/{totalPages} pages</div><br></br>
       <div className="questionListContainer">
+        
         {loadingError ? (
           <div className="error">{loadingError}</div> // Display error message
         ) : (
-          <QuestionList
+          <UserQuestionList
             questions={questions}
-            incrementViewCount={incrementViewCount}
-            setCurrentPage={setCurrentPage}
+            currentQID={currentQID}
             setCurrentQID={setCurrentQID}
           />
         )}
@@ -121,9 +79,9 @@ const SearchPage = ({
             Next
           </button>
         </div>
-        ß
+        
       </div>
     </div>
   );
 };
-export default SearchPage;
+export default UserQuestionPage;

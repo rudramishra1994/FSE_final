@@ -1,32 +1,46 @@
-import React,{useState,useEffect} from 'react';
-import MainBodyPrimHeader from './MainBodyPrimHeader';
-import MainBodySecHeader from './MainBodySecHeader';
-import QuestionList from './QuestionList';
-import './HomePage.css';
-import ApplicationModel from '../../models/ApplicationModel';
+import React, { useState, useEffect } from "react";
+import MainBodyPrimHeader from "./MainBodyPrimHeader";
+import MainBodySecHeader from "./MainBodySecHeader";
+import QuestionList from "./QuestionList";
+import "./HomePage.css";
+import ApplicationModel from "../../models/ApplicationModel";
 
-const appModel = new ApplicationModel
+const appModel = new ApplicationModel();
 
-const PAGE_SIZE = 5; 
-const HomePage = ({questions,setQuestions,filterQuestion,searchTerm,incrementViewCount,handleAskQuestionClick,setCurrentPage,setCurrentQID, user,
-  setUser,totalPages,setTotalPages,totalQuestionCount,setTotalQuestionCount}) => {
-   
-  const [loading, setLoading] = useState(false);
+const PAGE_SIZE = 5;
+const HomePage = ({
+  questions,
+  setQuestions,
+  searchTerm,
+  incrementViewCount,
+  handleAskQuestionClick,
+  setCurrentPage,
+  setCurrentQID,
+  user,
+  setUser,
+}) => {
   const [currentPaginationPage, setCurrentPaginationPage] = useState(1);
-  const [loadingError,setLoadingError] = useState('');
+  const [loadingError, setLoadingError] = useState("");
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalQuestionCount, setTotalQuestionCount] = useState(0);
+  const [currentFilter, setCurrentFilter] = useState("newest");
+
   const fetchQuestions = async (page) => {
-    setLoading(true);
+    setLoadingError("");
     try {
-      const data = await appModel.getQuestionsWithTags("newest",page,PAGE_SIZE);
+      const data = await appModel.getQuestionsWithTags(
+        currentFilter,
+        page,
+        PAGE_SIZE
+      );
       setTotalQuestionCount(data.total);
       setQuestions(data.questions);
       setTotalPages(data.totalPages);
     } catch (error) {
-      setLoadingError('Error Loading Questions')
-    } finally {
-      setLoading(false);
+      setLoadingError(error.response.data || "Error Loading Questions");
     }
   };
+
   const handleNextClick = () => {
     const nextPage = currentPaginationPage + 1;
     if (nextPage <= totalPages) {
@@ -41,28 +55,66 @@ const HomePage = ({questions,setQuestions,filterQuestion,searchTerm,incrementVie
     }
   };
 
+  const filterQuestion = async (filter) => {
+    setLoadingError("");
+    try {
+      const data = await appModel.getQuestionsWithTags(filter.toLowerCase());
+      setTotalQuestionCount(data.total);
+      setQuestions(data.questions);
+      setCurrentFilter(filter.toLowerCase());
+      setTotalPages(data.totalPages);
+      setCurrentPaginationPage(1);
+    } catch (error) {
+      setLoadingError(error.response.data || "Error Loading Questions");
+    }
+  };
+
   useEffect(() => {
     fetchQuestions(currentPaginationPage);
   }, [currentPaginationPage]);
 
-    
-
   return (
     <div className="homepage">
-      <MainBodyPrimHeader searchTerm={searchTerm} handleAskQuestionClick={handleAskQuestionClick} user={user} setCurrentPage={setCurrentPage} setUser={setUser}/>
-      <MainBodySecHeader numberOfQuestions={totalQuestionCount} filterQuestion={filterQuestion} />
+      <MainBodyPrimHeader
+        searchTerm={searchTerm}
+        handleAskQuestionClick={handleAskQuestionClick}
+        user={user}
+        setCurrentPage={setCurrentPage}
+        setUser={setUser}
+      />
+      <MainBodySecHeader
+        numberOfQuestions={totalQuestionCount}
+        filterQuestion={filterQuestion}
+        currentFilter={currentFilter}
+      />
       <div className="questionListContainer">
-        {loading ? (
-          <div>Loading questions...</div>
-        ) : loadingError ? (
+        {loadingError ? (
           <div className="error">{loadingError}</div> // Display error message
         ) : (
-          <QuestionList questions={questions} incrementViewCount={incrementViewCount} setCurrentPage={setCurrentPage} setCurrentQID={setCurrentQID} />
+          <QuestionList
+            questions={questions}
+            incrementViewCount={incrementViewCount}
+            setCurrentPage={setCurrentPage}
+            setCurrentQID={setCurrentQID}
+          />
         )}
       </div>
-      <div className="pagination">
-        <button onClick={handlePrevClick} disabled={currentPaginationPage === 1}>Prev</button>
-        <button onClick={handleNextClick} disabled={currentPaginationPage === totalPages}>Next</button>
+      <div className="paginationContainer">
+        <div className="pagination">
+          <button
+            onClick={handlePrevClick}
+            disabled={currentPaginationPage === 1}
+          >
+            Prev
+          </button>
+          <button
+            onClick={handleNextClick}
+            disabled={currentPaginationPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+        ß
       </div>
     </div>
   );

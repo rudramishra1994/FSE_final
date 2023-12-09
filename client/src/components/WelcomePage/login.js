@@ -1,6 +1,7 @@
 import React,{useState} from 'react';
 import '../../stylesheets/welcome.css'; 
 import ApplicationModel from '../../models/ApplicationModel';
+const appModel = new ApplicationModel();
 //import questions from '../../../../server/models/questions';
 const LoginForm = ({ onRegisterClick,onBackClick,setUser,setCurrentPage })=>{
 
@@ -14,7 +15,7 @@ const LoginForm = ({ onRegisterClick,onBackClick,setUser,setCurrentPage })=>{
     const handleSubmit = async (e) =>{
         e.preventDefault();
         if (validateForm()) {
-          const result = await ApplicationModel.login(formData.username,formData.password);
+          const result = await appModel.login(formData.username,formData.password);
           if (result.success) {
             setUser(result.data.user)
             clearForm();

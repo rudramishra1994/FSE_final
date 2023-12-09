@@ -1,43 +1,38 @@
 import React, { useEffect, useState } from "react";
-import AnswerHeader from "./AnswerHeader";
-import QuestionBody from "./QuestionBody";
-import AnswerList from "./AnswerList";
+
+
 // import { useParams,useNavigate } from 'react-router-dom';
 import ApplicationModel from "../../models/ApplicationModel";
-import "./QuestionDetailPage.css";
+import "../QuestionDetailPage/QuestionDetailPage.css";
+import UserAnswerList from "./UserAnswerList";
 
 const appModel = new ApplicationModel();
 const PAGE_SIZE = 5;
-const QuestionDetailPage = ({
-  qid,
-  handlePostAnswerClick,
-  handleAskQuestionClick,
+const UserAnswerPage = ({
   user,
 }) => {
   // const { qid } = useParams();
-  const [question, setQuestion] = useState(null);
+
   const [answers, setAnswers] = useState(null);
   const [currentPaginationPage, setCurrentPaginationPage] = useState(1);
   const [loadingError, setLoadingError] = useState("");
   const [totalPages, setTotalPages] = useState(0);
   // const navigate = useNavigate();
   //const parentAnswer = 'question';
-  const handlePostAnswerBtnClick = () => {
-    handlePostAnswerClick(qid);
-  };
+
 
   const fetchData = async (page) => {
     setLoadingError('');
     try {
-      const q = await appModel.getQuestionById(qid);
-      const data = await appModel.getAnswersForQuestion(qid, page, PAGE_SIZE);
+      const data = await appModel.getAnswersGivenByUser(page, PAGE_SIZE);
       setTotalPages(data.totalPages);
-      setQuestion(q);
       setAnswers(data.answers);
     } catch (error) {
       setLoadingError(error.message || "Failed to fetch question or answers:");
     } 
   };
+
+  
 
   useEffect(() => {
     fetchData(currentPaginationPage);
@@ -59,26 +54,16 @@ const QuestionDetailPage = ({
 
   return (
     <div className="questiondetailpage">
-      {question && question.ansIds && answers ? (
+      {answers && answers.length >0 ? (
         <>
-          <div className="questionDetailContainer">
-            <AnswerHeader
-              numAnswers={question.ansIds.length}
-              questionTitle={question.title}
-              handleAskQuestionClick={handleAskQuestionClick} 
-            />
-            <QuestionBody question={question} qid={qid} user={user} />
-
-            <div></div>
-          </div>
-
+          <div>Showing {currentPaginationPage}/{totalPages} pages</div><br></br>
           <div className="answerListContainer">
             {loadingError ? (
               <div className="error">{loadingError}</div>
             ) : answers.length === 0 ? (
               <div className="noComments">No Answers to display.</div>
             ) : (
-              <AnswerList answers={answers} user={user} />
+              <UserAnswerList answers={answers} user={user} />
             )}
           </div>
           <div className="paginationContainer">
@@ -99,18 +84,12 @@ const QuestionDetailPage = ({
               </button>
             </div>
           </div>
-
-          <div id="answerButton">
-            <button id="postAnswer" onClick={handlePostAnswerBtnClick}>
-              Answer Question
-            </button>
-          </div>
         </>
       ) : (
-        <div>Question not found</div>
+        <div>Answer given by user not found</div>
       )}
     </div>
   );
 };
 
-export default QuestionDetailPage;
+export default UserAnswerPage;

@@ -3,14 +3,14 @@ import './SideNavBar.css';
 import ApplicationModel from '../../models/ApplicationModel';
 // import { useLocation, useNavigate } from 'react-router-dom';
 
-
+const appModel = new ApplicationModel();
 const SideBarNav = ({currentPage,setCurrentPage,handleQuestionNavClick,user,setUser,setActiveView}) => {
 
   const [logoutError ,setLogoutError] = useState('');
   const handleLogoutBtnClick=async (e)=>{
     e.preventDefault();
       if(user){
-        const result = await ApplicationModel.logout();
+        const result = await appModel.logout();
         if (result.success) {
           setLogoutError('');
           setUser(null);
@@ -32,7 +32,7 @@ const SideBarNav = ({currentPage,setCurrentPage,handleQuestionNavClick,user,setU
     <div id="sideBarNav">
       <a
         href="#"
-        className={`sideBarLink ${currentPage === 'all-questions' ||currentPage.includes('ask-question') ||currentPage.includes('questionDetail') || currentPage.includes('searchResults') || currentPage.includes('new-answer') ? 'activeLink' : ''}`}
+        className={`sideBarLink ${currentPage === 'all-questions' ||currentPage.includes('ask-question') ||currentPage.includes('questionDetail') || currentPage.includes('search-result') || currentPage.includes('new-answer') ? 'activeLink' : ''}`}
         id="questionpage"
         onClick={handleQuestionNavClick}
       >

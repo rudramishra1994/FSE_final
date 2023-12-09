@@ -14,6 +14,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   margin: 0;
   padding: 0;
   width: 100% !important;
@@ -33,6 +34,11 @@ body {
   color: white;
   background-color: cornflowerblue;
   padding: 10px;
+  border: 1px solid grey;
+  cursor: pointer;
+  box-shadow: 0 2px black;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
 
@@ -49,10 +55,8 @@ body {
 
 .fullHeightAnswerForm {
   display:flex;
-  padding-left: 20%;
   flex-direction: column;
   justify-content: center; /* Centers items vertically */
-  align-items: left; /* Centers items horizontally */
   height: 100vh;
   width: 100vh;
 }
@@ -64,7 +68,7 @@ body {
   /*display: inline-block;*/
 }
   
-#answersHeader,#questionBody,#tagHeader {
+#answersHeader,#tagHeader {
   display: flex;
   padding: 20px;
   align-items: flex-start;
@@ -76,19 +80,30 @@ body {
   font-size: 20px;
   font-weight: 900;
 }
+#questionBody{
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr; /* Sets the column widths in 1:3:1 ratio */
+  align-items: flex-start;
+  padding: 20px;
+
+  width: 100%;
+  margin-top: 30px;
+  font-size: 20px;
+  font-weight: 900;
+}
+
 
 .questionTextContainer{
   display: flex;
   align-items:center;
   flex-direction: column;
-  max-width: 80%;
+  max-width: 100%;
 }
 
 #questionText{
   font-weight:200;
   font-size: 16px;
-  padding-right: 20px;
-  max-width: 80%;
+  max-width: 100%;
   align-items: stretch;
   
 }
@@ -154,7 +169,21 @@ body {
   overflow: hidden;
   box-sizing: border-box;
   box-shadow: 2px 2px 5px rgba(0, 0, 0,1);
+  transition: all 0.3s ease;
 }
+
+.tagNode.editMode {
+  transform: scale(1.5); /* Increase size */
+  z-index: 10; /* Ensure it's above other elements */
+  box-shadow: 0 0 10px rgba(0,0,0,0.5); /* Optional: Add shadow for pop effect */
+  /* You can add more styling as needed */
+}
+
+.tagNode.editMode input[type="text"] {
+  width: calc(100% - 20px); /* Adjust width as needed */
+  /* Other styles... */
+}
+
 
 .tagName{
   color: blue;
@@ -165,8 +194,9 @@ body {
   align-items: center;
   justify-items: center;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;  
+  /* grid-template-columns: 1fr 1fr 1fr; */
+  grid-template-columns: repeat(3, 1fr);  /* Adjust minmax as needed */
+  gap: 30px;
 }
 
 
@@ -188,6 +218,27 @@ body {
   height: 100vh; /* Optional: You might want to limit the height to the viewport */
   width: 100vw; /* Optional: You might want to limit the width to the viewport */
 }
+
+.error {
+  color: red;
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.flexContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tagGridContainer{
+  height: 80%;
+  width:90%;
+  overflow-y: auto;
+  overflow: visible;
+  padding: 10px;
+}
+
 
 
 
