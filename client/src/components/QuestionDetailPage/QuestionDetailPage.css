@@ -9,9 +9,9 @@
 }
 
 .questionDetailContainer {
-  display: flex;
-  flex-direction: column;
-  height: 50%; /* Adjust the height as needed */
+  /* display: flex;
+  flex-direction: column; */
+  height: 30%; /* Adjust the height as needed */
   width: 100%;
   overflow-y: auto;
 }
@@ -130,4 +130,13 @@
   display: flex;
   width: 90%;
   flex-direction: column;
+}
+
+.selectedanswercontainer{
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: space-evenly;
+  overflow: scroll;
+  overflow-y: auto;
 }

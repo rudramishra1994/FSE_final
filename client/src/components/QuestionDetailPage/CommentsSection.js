@@ -41,6 +41,7 @@ const CommentsSection = ({ user, fetchData, postComment }) => {
   }, [currentPage]);
 
   const handlePostComment = async () => {
+    setCommentValidationError('');
     if (validateComment()) {
       try {
         const response = await postComment(newComment);

@@ -287,6 +287,32 @@ class ApplicationModel {
     }
   }
 
+  async getSelectedAnswer(aid) {
+    try {
+      const response = await this.api.get(`/selectedanswer/${aid}`);
+      response.data.ansDate = new Date(response.data.
+        ans_date_time);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching question using id", error);
+      throw error;
+    }
+  }
+
+
+
+  async updateSelectedAnswerForQuestion(aid,qid) {
+    try {
+      const response = await this.api.put(`updatequestionselectedanswer`, {
+        params: { aid,qid},
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating tag", error);
+      throw error;
+    }
+  }
+
 
   async updateAnswer(aid, text) {
     try {

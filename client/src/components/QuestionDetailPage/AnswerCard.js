@@ -6,10 +6,11 @@ import "./AnswerList.css";
 import ApplicationModel from "../../models/ApplicationModel";
 const appModel = new ApplicationModel();
 
-const AnswerCard = ({ answer, user }) => {
+const AnswerCard = ({ answer, user,setSelectedAnswer,question }) => {
 
   const [votes, setVotes] = useState(answer.votes);
   const [errorUpVote, setErrorUpVote] = useState("");
+  const [errorSelectingAnswer,setErrorSelectingAnswer] = useState('');
   const onUpvote = () => {
     setErrorUpVote("");
     try {
@@ -57,6 +58,17 @@ const AnswerCard = ({ answer, user }) => {
     }
   };
 
+  const handleSelectAnswer = async () => {
+    setErrorSelectingAnswer('')
+    try {
+      await appModel.updateSelectedAnswerForQuestion(answer._id, answer.qid); // Assuming this method updates the selected answer in the backend
+      setSelectedAnswer(answer._id); // Inform the parent component about the selection
+    } catch (error) {
+      console.error("Error selecting answer:", error);
+      setErrorSelectingAnswer('Selection Failed')
+    }
+  };
+
 
 
   return (
@@ -78,7 +90,17 @@ const AnswerCard = ({ answer, user }) => {
         </div>
         
         <div className="answerText">{parseTextWithHyperlinks(answer.text)}</div>
+        
+        <div className="userInfoContainer">
         <AnswerAuthorInfo answer={answer} />
+        {user && question && user.username === question.askedBy && (
+          <button className="selectAnswerBtn vote-arrow" onClick={handleSelectAnswer} disabled={question.selectedanswer && question.selectedanswer  === answer._id}>
+             {question.selectedanswer && question.selectedanswer=== answer._id ? "Selected Answer" : "Select"}
+          </button>
+        )}
+        <div className="error">{errorSelectingAnswer}</div>
+        </div>
+        
       </div>
       <div className="answerCommentSectionContainer">
         <CommentsSection

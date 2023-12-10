@@ -75,6 +75,19 @@ class ApplicationController {
     }
   }
 
+
+  static async getSelectedAnswer(req, res) {
+    try {
+      const question = await ApplicationModel.getSelectedAnswer(req.params.aid);
+      if (!question) {
+        return res.status(404).send("Question not found");
+      }
+      res.json(question);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  }
+
   static async getQuestionByIdWithTags(req, res) {
     try {
       const { question, tags } = await ApplicationModel.getQuestionByIdWithTags(
@@ -461,6 +474,19 @@ class ApplicationController {
       const { qid, title, text, tagInput} = req.body.params;
       const userid = req.session.userId;
       await ApplicationModel.updateQuestion(qid, title, text, tagInput,userid);
+      res.status(201).json({
+        message: "Tag successfully edited",
+      });
+    } catch (error) {
+      res.status(500).send(error.message || "Tag Update Failed");
+    }
+  }
+
+  static async updateSelectedAnswerForQuestion(req, res) {
+    try {
+      const {aid,qid} = req.body.params;
+      const userid = req.session.userId;
+      await ApplicationModel.updateSelectedAnswerForQuestion(aid,qid,userid);
       res.status(201).json({
         message: "Tag successfully edited",
       });

@@ -4,7 +4,6 @@ const Tag = require("./tags");
 const User = require("./user");
 const Comment = require("./comment");
 const bcrypt = require("bcrypt");
-const mongoose = require("mongoose");
 
 class ApplicationModel {
   static instance = null;
@@ -31,6 +30,11 @@ class ApplicationModel {
   static async getAnswers() {
     const answers = await Answer.find({});
     return answers.map((answer) => answer.toObject({ virtuals: true }));
+  }
+
+  static async getSelectedAnswer(aid) {
+    const answer = await Answer.findById(aid);
+    return  answer.toObject({ virtuals: true });
   }
   static async getTags() {
     return await Tag.find({});
@@ -177,6 +181,43 @@ class ApplicationModel {
       throw error;
     }
   }
+
+  static async selectAnswerForQuestion(qid, answerid) {
+    try {
+      // Find the question by its ID
+      const question = await Question.findById(qid);
+      if (!question) {
+          throw new Error("Question not found");
+      }
+
+      // Verify if the answer ID is valid and belongs to the question
+      const answer = await Answer.findById(answerid);
+      if (!answer || !answer.questionId.equals(question._id)) {
+          throw new Error("Invalid answer for the given question");
+      }
+
+      // If there is an existing selected answer, add it back to the answers list
+      if (question.selectedAnswer && !question.answers.includes(question.selectedAnswer)) {
+          question.answers.push(question.selectedAnswer);
+      }
+
+      // Update the selected answer for the question
+      question.selectedAnswer = answerid;
+
+      // Remove the new selected answer from the answers list
+      question.answers = question.answers.filter(ans => !ans.equals(answerid));
+
+      await question.save();
+
+      return question; // Return the updated question
+  } catch (error) {
+      console.error("Error in selectAnswerForQuestion:", error);
+      throw error;
+  }
+  }
+
+
+
 
   static async getAnswersGivenByUser(authorid, page = 1, limit = 5) {
     try {
@@ -734,6 +775,36 @@ class ApplicationModel {
     }
   }
 
+  static async updateSelectedAnswerForQuestion(answerid, qid, userId) {
+    try {
+      // Find the question by its ID
+      const question = await Question.findById(qid);
+      if (!question) {
+        throw new Error("Question not found");
+      }
+
+      // Verify if the user is the author of the question
+      if (!question.authorid.equals(userId)) {
+        throw new Error("Only the author of the question can select an answer");
+      }
+
+      // Verify if the answer ID is valid and belongs to the question
+      const answer = await Answer.findById(answerid);
+      if (!answer || !answer.qid.equals(question._id)) {
+        throw new Error("Invalid answer for the given question");
+      }
+
+      // Update the selected answer for the question
+      question.selectedanswer = answerid;
+      await question.save();
+
+      return question; // Return the updated question
+    } catch (error) {
+      console.error("Error in selectAnswerForQuestion:", error);
+      throw error;
+    }
+  }
+
   static async updateAnswer(aid, text, userId) {
     try {
       const answer = await Answer.findById(aid);
@@ -918,37 +989,39 @@ class ApplicationModel {
       // Fetch the answer
       const answer = await Answer.findById(aid);
       if (!answer) {
-        throw new Error('Answer not found');
+        throw new Error("Answer not found");
       }
-  
+
       // Check if the user is the author of the answer
       if (!answer.authorid.equals(userId)) {
-        throw new Error('User is not the author of the answer');
+        throw new Error("User is not the author of the answer");
       }
-  
+
       // Delete all comments associated with the answer
       await Comment.deleteMany({ _id: { $in: answer.comments } });
-  
+
       // Update the associated question's latestActivity
       await Question.updateOne(
         { _id: answer.qid },
         { $set: { latestActivity: new Date() } }
       );
-  
+
       // Remove the answer reference from the user's answer reference array
       await User.updateOne(
         { _id: userId },
-        { $pull: { ansIds: aid } }
+        {
+          $pull: { ansIds: aid },
+          $set: { latestActivity: new Date() },
+        }
       );
-  
+
       // Delete the answer
       await Answer.deleteOne({ _id: aid });
     } catch (error) {
-      console.error('Error in deleteAnswer:', error.message);
+      console.error("Error in deleteAnswer:", error.message);
       throw error;
     }
   }
-  
 
   static async updateQuestionVoteCount(qid, deltaRep, deltaVote) {
     try {

@@ -25,6 +25,12 @@ router.get(
   ApplicationController.getQuestionByIdWithTags
 );
 
+router.get(
+  "/selectedanswer/:aid",
+  isAuthenticated,
+  ApplicationController.getSelectedAnswer
+);
+
 // User Login
 router.post("/login", ApplicationController.login);
 
@@ -81,6 +87,12 @@ router.put(
   "/user/updatequestion/",
   isAuthenticated,
   ApplicationController.updateQuestion
+);
+
+router.put(
+  "/updatequestionselectedanswer/",
+  isAuthenticated,
+  ApplicationController.updateSelectedAnswerForQuestion
 );
 
 router.put(

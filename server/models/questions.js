@@ -5,6 +5,7 @@ const questionSchema = new mongoose.Schema({
   text: { type: String, required: true },
   tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
   answers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Answer" }],
+  selectedanswer: { type: mongoose.Schema.Types.ObjectId, ref: "Answer" },
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   asked_by: { type: String, required: true },
   authorid: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
