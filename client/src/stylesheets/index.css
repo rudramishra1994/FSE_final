@@ -17,6 +17,7 @@ body {
   justify-content: center;
   margin: 0;
   padding: 0;
+  height: 100vh;
   width: 100% !important;
 }
 
@@ -240,6 +241,17 @@ body {
 }
 
 
+.editSaveButton {
+  background-color: green;
+  color: white;
+  /* Add more styling as needed */
+}
+
+.cancelDeleteButton {
+  background-color: red;
+  color: white;
+  /* Add more styling as needed */
+}
 
 
 

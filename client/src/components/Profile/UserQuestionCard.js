@@ -4,10 +4,11 @@ import '../HomePage/HomePage.css'
 // import { Link } from 'react-router-dom';
 
 
-const UserQuestionCard = ({ question, tags,/*currentQID,setCurrentQID*/ }) => {
+const UserQuestionCard = ({ question, tags,setCurrentQID,setCurrentPage }) => {
   
   const handleQuestionClick = () => {
-      
+      setCurrentQID(question._id);
+      setCurrentPage('edit-question');
     };
 
 

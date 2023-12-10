@@ -1,18 +1,23 @@
-import React from 'react';
-import UserQuestionCard from './UserQuestionCard';
+import React from "react";
+import UserQuestionCard from "./UserQuestionCard";
 
-const UserQuestionList = ({ questions,currentQID,setCurrentQID }) => {
-
-   return (
+const UserQuestionList = ({
+  questions,
+  currentQID,
+  setCurrentQID,
+  setCurrentPage,
+}) => {
+  return (
     <div id="questionList">
       {questions.length > 0 ? (
-        questions.map(question => (
-          <UserQuestionCard 
-            key={question.question._id} 
-            question={question.question} 
+        questions.map((question) => (
+          <UserQuestionCard
+            key={question.question._id}
+            question={question.question}
             tags={question.tags}
-            currentQID={currentQID} 
+            currentQID={currentQID}
             setCurrentQID={setCurrentQID}
+            setCurrentPage={setCurrentPage}
           />
         ))
       ) : (

@@ -11,6 +11,19 @@ const isAuthenticated = (req, res, next) => {
 
 // GET all questions
 router.get("/questions", ApplicationController.getQuestions);
+router.delete(
+  "/questions/:qid",
+  isAuthenticated,
+  ApplicationController.deleteQuestionByID
+);
+
+
+
+router.get(
+  "/questionbyidwithtags/:qid",
+  isAuthenticated,
+  ApplicationController.getQuestionByIdWithTags
+);
 
 // User Login
 router.post("/login", ApplicationController.login);
@@ -42,25 +55,53 @@ router.get(
 );
 
 router.get(
-  "/user/questionwithtags/",isAuthenticated,
+  "/user/questionwithtags/",
+  isAuthenticated,
   ApplicationController.getQuestionsWithTagsForCurrentUser
 );
 router.get(
-  "/user/answers/",isAuthenticated,
+  "/user/answers/",
+  isAuthenticated,
   ApplicationController.getAnswersGivenByUser
 );
 
 router.get(
-  "/user/tags/",isAuthenticated,
+  "/user/tags/",
+  isAuthenticated,
   ApplicationController.getTagsCreatedByUser
 );
 
-router.put( "/user/updatetag/",isAuthenticated,
-ApplicationController.updateUserTag);
+router.put(
+  "/user/updatetag/",
+  isAuthenticated,
+  ApplicationController.updateUserTag
+);
+
+router.put(
+  "/user/updatequestion/",
+  isAuthenticated,
+  ApplicationController.updateQuestion
+);
+
+router.put(
+  "/user/updateanswer/",
+  isAuthenticated,
+  ApplicationController.updateAnswer
+);
+
+router.delete(
+  "/user/deletetag/:tid",
+  isAuthenticated,
+  ApplicationController.deleteUserTag
+);
 
 
-router.delete( "/user/deletetag/:tid",isAuthenticated,
-ApplicationController.deleteUserTag);
+
+router.delete(
+  "/user/deleteanswer/:aid",
+  isAuthenticated,
+  ApplicationController.deleteAnswer
+);
 // POST a new answer
 router.post("/answers", isAuthenticated, ApplicationController.addAnswer);
 

@@ -63,6 +63,29 @@ class ApplicationModel {
     }
   }
 
+  async deleteQuestionByID(questionId) {
+    // Assuming you have a function to make API calls
+    try {
+      const response = await this.api.delete(`/questions/${questionId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching question using id", error);
+      throw error;
+    }
+  }
+
+  async getQuestionByIdWithTags(qid) {
+    try {
+      const response = await this.api.get(`/questionbyidwithtags/${qid}`);
+
+      response.data.question.askDate = new Date(response.data.question.askDate);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching question using id", error);
+      throw error;
+    }
+  }
+
   async getAnswersForQuestion(qid, page = 1, limit = 5) {
     //const response = await this.api.get(`/questions/${qid}/answers`);
     try {
@@ -91,8 +114,6 @@ class ApplicationModel {
       throw error;
     }
   }
-
-
 
   async getAnswersGivenByUser(page = 1, limit = 5) {
     //const response = await this.api.get(`/questions/${qid}/answers`);
@@ -210,13 +231,15 @@ class ApplicationModel {
     }
   }
 
-  async searchQuestions(query,order,page,limit) {
+  async searchQuestions(query, order, page, limit) {
     try {
-      const response = await this.api.get("/search", { params: { q: query,order,page,limit } });
+      const response = await this.api.get("/search", {
+        params: { q: query, order, page, limit },
+      });
       const searchResult = this.convertQuestionDateStringToDate(
         response.data.questions
       );
-      
+
       return {
         questions: searchResult,
         total: response.data.total,
@@ -239,10 +262,10 @@ class ApplicationModel {
     }
   }
 
-  async updateUserTag(tid,name) {
+  async updateUserTag(tid, name) {
     try {
-      const response = await this.api.put(`user/updatetag`,{
-        params: { tid,name },
+      const response = await this.api.put(`user/updatetag`, {
+        params: { tid, name },
       });
       return response.data;
     } catch (error) {
@@ -250,6 +273,33 @@ class ApplicationModel {
       throw error;
     }
   }
+
+
+  async updateQuestion(qid, title, text, tagInput) {
+    try {
+      const response = await this.api.put(`user/updatequestion`, {
+        params: { qid, title,text,tagInput},
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating tag", error);
+      throw error;
+    }
+  }
+
+
+  async updateAnswer(aid, text) {
+    try {
+      const response = await this.api.put(`user/updateanswer`, {
+        params: { aid,text},
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating tag", error);
+      throw error;
+    }
+  }
+
 
   async deleteUserTag(tid) {
     try {
@@ -260,6 +310,17 @@ class ApplicationModel {
       throw error;
     }
   }
+
+  async deleteAnswer(aid) {
+    try {
+      const response = await this.api.delete(`user/deleteanswer/${aid}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting tag", error);
+      throw error;
+    }
+  }
+
 
   async getTagsCreatedByUser() {
     try {
@@ -308,14 +369,11 @@ class ApplicationModel {
     }
   }
 
-  async getQuestionsWithTagsForCurrentUser(filter, page = 1, limit = 5){
+  async getQuestionsWithTagsForCurrentUser(filter, page = 1, limit = 5) {
     try {
-      const response = await this.api.get(
-        `/user/questionwithtags/`,
-        {
-          params: { page, limit },
-        }
-      );
+      const response = await this.api.get(`/user/questionwithtags/`, {
+        params: { page, limit },
+      });
       const questionsWithDates = this.convertQuestionDateStringToDate(
         response.data.questions
       );
