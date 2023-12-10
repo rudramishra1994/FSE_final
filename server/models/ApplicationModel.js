@@ -107,7 +107,7 @@ class ApplicationModel {
     await user.save();
     await Question.findByIdAndUpdate(qid, {
       $push: { answers: answer._id },
-      $set: { lastActivity: date },
+      $set: { latestActivity: date },
     });
   }
 
@@ -368,7 +368,8 @@ class ApplicationModel {
       }
     }
 
-    const total = await Question.countDocuments();
+    let total = await Question.countDocuments();
+    if(order ==='unanswered') total = questions.length;
     const results = await this.addTagToQuestion(questions);
     return {
       questions: results,
@@ -500,7 +501,7 @@ class ApplicationModel {
         break;
       case "active":
         {
-          sortStage = { $sort: { lastActivity: -1 } };
+          sortStage = { $sort: { latestActivity: -1 } };
           matchStage = { $match: baseMatchCondition };
           countMatchCondition = baseMatchCondition;
         }
