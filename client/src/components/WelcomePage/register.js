@@ -38,7 +38,8 @@ const RegisterForm = ({ onLoginClick,onBackClick}) =>{
 
     const validateForm = () => {
         let newErrors = {};
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple email regex for validation
+        const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
       
         if (!formData.username) {
           newErrors.username = 'Username cannot be empty';
@@ -65,7 +66,7 @@ const RegisterForm = ({ onLoginClick,onBackClick}) =>{
       <div className='loginContainer'>
          <button className='backButton' onClick={onBackClick}>&larr; Back</button>
         <h2>Register a new account</h2>
-        <form className = 'form' onSubmit={handleSubmit}>
+        <form className = 'form' onSubmit={handleSubmit} noValidate>
         {regError && <div className="error">{regError}</div>}
         <input className='loginInput' type="text" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} placeholder="username" />
         {errors.username && <div className='error'>{errors.username}</div>}

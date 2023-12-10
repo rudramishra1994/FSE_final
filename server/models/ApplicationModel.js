@@ -31,6 +31,11 @@ class ApplicationModel {
     const answers = await Answer.find({});
     return answers.map((answer) => answer.toObject({ virtuals: true }));
   }
+
+  static async getSelectedAnswer(aid) {
+    const answer = await Answer.findById(aid);
+    return  answer.toObject({ virtuals: true });
+  }
   static async getTags() {
     return await Tag.find({});
   }
@@ -102,7 +107,7 @@ class ApplicationModel {
     await user.save();
     await Question.findByIdAndUpdate(qid, {
       $push: { answers: answer._id },
-      $set: { lastActivity: date },
+      $set: { latestActivity: date },
     });
   }
 
@@ -177,34 +182,71 @@ class ApplicationModel {
     }
   }
 
+  static async selectAnswerForQuestion(qid, answerid) {
+    try {
+      // Find the question by its ID
+      const question = await Question.findById(qid);
+      if (!question) {
+          throw new Error("Question not found");
+      }
+
+      // Verify if the answer ID is valid and belongs to the question
+      const answer = await Answer.findById(answerid);
+      if (!answer || !answer.questionId.equals(question._id)) {
+          throw new Error("Invalid answer for the given question");
+      }
+
+      // If there is an existing selected answer, add it back to the answers list
+      if (question.selectedAnswer && !question.answers.includes(question.selectedAnswer)) {
+          question.answers.push(question.selectedAnswer);
+      }
+
+      // Update the selected answer for the question
+      question.selectedAnswer = answerid;
+
+      // Remove the new selected answer from the answers list
+      question.answers = question.answers.filter(ans => !ans.equals(answerid));
+
+      await question.save();
+
+      return question; // Return the updated question
+  } catch (error) {
+      console.error("Error in selectAnswerForQuestion:", error);
+      throw error;
+  }
+  }
+
+
+
+
   static async getAnswersGivenByUser(authorid, page = 1, limit = 5) {
     try {
-        // Check if authorid is provided
-        if (!authorid) {
-            throw new Error("Author ID is required");
-        }
+      // Check if authorid is provided
+      if (!authorid) {
+        throw new Error("Author ID is required");
+      }
 
-        // Count the total number of answers by the user
-        const total = await Answer.countDocuments({ authorid: authorid }).exec();
+      // Count the total number of answers by the user
+      const total = await Answer.countDocuments({ authorid: authorid }).exec();
 
-        // Find answers by the user with pagination
-        const answers = await Answer.find({ authorid: authorid })
-            .sort({ ans_date_time: -1 }) // Sorting by answer date in descending order
-            .skip((page - 1) * limit)
-            .limit(limit)
-            .exec();
+      // Find answers by the user with pagination
+      const answers = await Answer.find({ authorid: authorid })
+        .sort({ ans_date_time: -1 }) // Sorting by answer date in descending order
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec();
 
-        // Convert to objects including virtuals
-        const formattedAnswers = answers.map((answer) =>
-            answer.toObject({ virtuals: true })
-        );
+      // Convert to objects including virtuals
+      const formattedAnswers = answers.map((answer) =>
+        answer.toObject({ virtuals: true })
+      );
 
-        return { answers: formattedAnswers, total };
+      return { answers: formattedAnswers, total };
     } catch (error) {
-        console.error("Error in getAnswersGivenByUser:", error);
-        throw error;
+      console.error("Error in getAnswersGivenByUser:", error);
+      throw error;
     }
-}
+  }
 
   static async getQuestionsByTag(tid) {
     const taggedQuestions = await Question.find({ tags: tid }).sort({
@@ -326,12 +368,32 @@ class ApplicationModel {
       }
     }
 
-    const total = await Question.countDocuments();
+    let total = await Question.countDocuments();
+    if(order ==='unanswered') total = questions.length;
     const results = await this.addTagToQuestion(questions);
     return {
       questions: results,
       total,
     };
+  }
+
+  static async getQuestionByIdWithTags(qid) {
+    try {
+      const question = await Question.findById(qid)
+        .populate("tags") // Assuming 'tags' is the field that contains references to Tag documents
+        .exec();
+
+      if (!question) {
+        throw new Error("Question not found");
+      }
+
+      const tags = question.tags;
+
+      return { question, tags };
+    } catch (error) {
+      console.error("Error in getQuestionByIdWithTags:", error);
+      throw error;
+    }
   }
 
   static async getQuestionsWithTagsForCurrentUser(page = 1, limit = 5, userid) {
@@ -439,7 +501,7 @@ class ApplicationModel {
         break;
       case "active":
         {
-          sortStage = { $sort: { lastActivity: -1 } };
+          sortStage = { $sort: { latestActivity: -1 } };
           matchStage = { $match: baseMatchCondition };
           countMatchCondition = baseMatchCondition;
         }
@@ -482,36 +544,34 @@ class ApplicationModel {
     );
     return counts;
   }
-  
 
   static async getTagsCreatedByUser(userid) {
     if (!userid) {
-        throw new Error("User ID is required");
+      throw new Error("User ID is required");
     }
 
     // Fetch user to get the list of tag IDs they've created
-    const user = await User.findById(userid).select('tids').lean();
+    const user = await User.findById(userid).select("tids").lean();
     if (!user) {
-        throw new Error("User not found");
+      throw new Error("User not found");
     }
 
     // Find tags based on the user's tag IDs
     const tags = await Tag.find({ _id: { $in: user.tids } });
 
     const counts = await Promise.all(
-        tags.map(async (tag) => {
-            const count = await Question.countDocuments({ tags: tag._id });
-            return {
-                tid: tag._id,
-                name: tag.name,
-                count: count,
-            };
-        })
+      tags.map(async (tag) => {
+        const count = await Question.countDocuments({ tags: tag._id });
+        return {
+          tid: tag._id,
+          name: tag.name,
+          count: count,
+        };
+      })
     );
 
     return counts;
-}
-
+  }
 
   static async getTagsByIds(tagIds) {
     return await Tag.find({ _id: { $in: tagIds } });
@@ -639,6 +699,327 @@ class ApplicationModel {
       await comment.save();
     } catch (error) {
       console.error("Error in createCommentAndUpdateQuestion:", error);
+      throw error;
+    }
+  }
+
+  static async updateUserTag(userId, tid, newName) {
+    try {
+      // Find the tag by ID
+      const tag = await Tag.findById(tid);
+      if (!tag) {
+        throw new Error("Tag not found");
+      }
+
+      // Check if the tag is being used by questions from other users
+      const isTagUsedByOthers = await Question.exists({
+        tags: tid,
+        authorid: { $ne: userId },
+      });
+      if (isTagUsedByOthers) {
+        throw new Error(
+          "Editing not allowed: Tag is being used by other users"
+        );
+      }
+
+      // Update the tag's name
+      tag.name = newName;
+      await tag.save();
+      return tag;
+    } catch (error) {
+      console.error("Error in updateUserTag:", error);
+      throw error;
+    }
+  }
+
+  static async updateQuestion(qid, title, text, tagInput, userId) {
+    try {
+      // Find the question by ID
+      const question = await Question.findById(qid);
+      if (!question) {
+        throw new Error("Question not found");
+      }
+
+      // Check if the user is the author of the question
+      if (!question.authorid.equals(userId)) {
+        throw new Error("Editing not allowed: User is not the author");
+      }
+
+      // Process tags
+      let tagIds = [];
+      for (const tagName of tagInput) {
+        let tag = await Tag.findOne({ name: tagName });
+        if (!tag) {
+          // If tag does not exist, create it
+          tag = new Tag({ name: tagName });
+          await tag.save();
+        }
+        tagIds.push(tag._id);
+      }
+
+      // Update the question
+      question.title = title;
+      question.text = text;
+      question.tags = tagIds;
+      question.latestActivity = new Date();
+      await question.save();
+
+      await User.updateOne(
+        { _id: userId },
+        { $addToSet: { tids: { $each: tagIds } } }
+      );
+
+      return question;
+    } catch (error) {
+      console.error("Error in updateQuestion:", error);
+      throw error;
+    }
+  }
+
+  static async updateSelectedAnswerForQuestion(answerid, qid, userId) {
+    try {
+      // Find the question by its ID
+      const question = await Question.findById(qid);
+      if (!question) {
+        throw new Error("Question not found");
+      }
+
+      // Verify if the user is the author of the question
+      if (!question.authorid.equals(userId)) {
+        throw new Error("Only the author of the question can select an answer");
+      }
+
+      // Verify if the answer ID is valid and belongs to the question
+      const answer = await Answer.findById(answerid);
+      if (!answer || !answer.qid.equals(question._id)) {
+        throw new Error("Invalid answer for the given question");
+      }
+
+      // Update the selected answer for the question
+      question.selectedanswer = answerid;
+      await question.save();
+
+      return question; // Return the updated question
+    } catch (error) {
+      console.error("Error in selectAnswerForQuestion:", error);
+      throw error;
+    }
+  }
+
+  static async updateAnswer(aid, text, userId) {
+    try {
+      const answer = await Answer.findById(aid);
+      if (!answer) {
+        throw new Error("Answer not found");
+      }
+
+      answer.text = text;
+      answer.latestActivity = new Date();
+      await answer.save();
+
+      await User.updateOne(
+        { _id: userId },
+        { $set: { latestActivity: new Date() } }
+      );
+
+      return answer;
+    } catch (error) {
+      console.error("Error in updateAnswer:", error);
+      throw error;
+    }
+  }
+
+  // static async deleteUserTag(tagId, userId) {
+  //   const session = await mongoose.startSession();
+  //   session.startTransaction();
+  //   try {
+  //       const tag = await Tag.findById(tagId).session(session);
+  //       if (!tag) {
+  //           throw new Error('Tag not found');
+  //       }
+
+  //       const isTagUsedInQuestions = await Question.exists({ tags: tagId, authorid: { $ne: userId } }).session(session);
+  //       if (isTagUsedInQuestions) {
+  //           throw new Error('Tag is in use by other users and cannot be deleted');
+  //       }
+
+  //       // Remove the tag from all Questions by this user that reference it
+  //       await Question.updateMany({ authorid: userId, tags: tagId }, { $pull: { tags: tagId } }).session(session);
+
+  //       // Remove the tag from the User's tag list
+  //       await User.updateOne({ _id: userId }, { $pull: { tids: tagId } }).session(session);
+
+  //       // Delete the tag
+  //       await Tag.deleteOne({ _id: tagId }).session(session);
+
+  //       await session.commitTransaction();
+  //       return { message: 'Tag successfully deleted' };
+  //   } catch (error) {
+  //       await session.abortTransaction();
+  //       console.error('Error in deleteUserTag:', error.message);
+  //       throw error;
+  //   } finally {
+  //       session.endSession();
+  //   }
+  // }
+
+  static async deleteUserTag(tagId, userId) {
+    try {
+      const tag = await Tag.findById(tagId);
+      if (!tag) {
+        throw new Error("Tag not found");
+      }
+
+      const isTagUsedInQuestions = await Question.exists({
+        tags: tagId,
+        authorid: { $ne: userId },
+      });
+      if (isTagUsedInQuestions) {
+        throw new Error("Tag is in use by other users and cannot be deleted");
+      }
+
+      // Remove the tag from all Questions by this user that reference it
+      await Question.updateMany(
+        { authorid: userId, tags: tagId },
+        { $pull: { tags: tagId } }
+      );
+
+      // Remove the tag from the User's tag list
+      await User.updateOne({ _id: userId }, { $pull: { tids: tagId } });
+
+      // Delete the tag
+      await Tag.deleteOne({ _id: tagId });
+
+      return { message: "Tag successfully deleted" };
+    } catch (error) {
+      console.error("Error in deleteUserTag:", error.message);
+      throw error;
+    }
+  }
+
+  // static async deleteQuestionByID(qid, userId) {
+  //   const session = await mongoose.startSession();
+  //   session.startTransaction();
+  //   try {
+  //     // Fetch the question
+  //     const question = await Question.findById(qid);
+  //     if (!question) {
+  //       throw new Error('Question not found');
+  //     }
+
+  //     // Check if the user is the author of the question
+  //     if (!question.authorid.equals(userId)) {
+  //       throw new Error('User is not the author of the question');
+  //     }
+
+  //     // Delete all comments associated with the question
+  //     await Comment.deleteMany({ _id: { $in: question.comments } }).session(session);
+
+  //     // Find all answers to the question
+  //     const answers = await Answer.find({ qid: qid }).session(session);
+
+  //     // Delete all comments associated with each answer
+  //     for (const answer of answers) {
+  //       await Comment.deleteMany({ _id: { $in: answer.comments } }).session(session);
+  //     }
+
+  //     // Delete all answers to the question
+  //     await Answer.deleteMany({ qid: qid }).session(session);
+
+  //     // Delete the question itself
+  //     await Question.deleteOne({ _id: qid }).session(session);
+
+  //     // Update the user's references
+  //     await User.updateOne(
+  //       { _id: userId },
+  //       { $pull: { qids: qid, ansIds: { $in: answers.map(a => a._id) } } }
+  //     ).session(session);
+
+  //     await session.commitTransaction();
+  //   } catch (error) {
+  //     await session.abortTransaction();
+  //     throw error;
+  //   } finally {
+  //     session.endSession();
+  //   }
+  // }
+
+  static async deleteQuestionByID(qid, userId) {
+    try {
+      // Fetch the question
+      const question = await Question.findById(qid);
+      if (!question) {
+        throw new Error("Question not found");
+      }
+
+      // Check if the user is the author of the question
+      if (!question.authorid.equals(userId)) {
+        throw new Error("User is not the author of the question");
+      }
+
+      // Delete all comments associated with the question
+      await Comment.deleteMany({ _id: { $in: question.comments } });
+
+      // Find all answers to the question
+      const answers = await Answer.find({ qid: qid });
+
+      // Delete all comments associated with each answer
+      for (const answer of answers) {
+        await Comment.deleteMany({ _id: { $in: answer.comments } });
+      }
+
+      // Delete all answers to the question
+      await Answer.deleteMany({ qid: qid });
+
+      // Delete the question itself
+      await Question.deleteOne({ _id: qid });
+
+      // Update the user's references
+      await User.updateOne(
+        { _id: userId },
+        { $pull: { qids: qid, ansIds: { $in: answers.map((a) => a._id) } } }
+      );
+    } catch (error) {
+      console.error("Error in deleteQuestionByID:", error.message);
+      throw error;
+    }
+  }
+
+  static async deleteAnswer(aid, userId) {
+    try {
+      // Fetch the answer
+      const answer = await Answer.findById(aid);
+      if (!answer) {
+        throw new Error("Answer not found");
+      }
+
+      // Check if the user is the author of the answer
+      if (!answer.authorid.equals(userId)) {
+        throw new Error("User is not the author of the answer");
+      }
+
+      // Delete all comments associated with the answer
+      await Comment.deleteMany({ _id: { $in: answer.comments } });
+
+      // Update the associated question's latestActivity
+      await Question.updateOne(
+        { _id: answer.qid },
+        { $set: { latestActivity: new Date() } }
+      );
+
+      // Remove the answer reference from the user's answer reference array
+      await User.updateOne(
+        { _id: userId },
+        {
+          $pull: { ansIds: aid },
+          $set: { latestActivity: new Date() },
+        }
+      );
+
+      // Delete the answer
+      await Answer.deleteOne({ _id: aid });
+    } catch (error) {
+      console.error("Error in deleteAnswer:", error.message);
       throw error;
     }
   }

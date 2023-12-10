@@ -13,7 +13,7 @@
   padding: 20px;
   grid-template-columns: 1fr 3fr 1fr; /* Sets the column widths in 1:3:1 ratio */
   align-items: flex-start;
-  height: 50%;
+  max-height: 300px;
   width: 100% !important;
 }
 
@@ -33,7 +33,7 @@
   justify-content: center;
   align-items: center;
   overflow-y: auto; /* Enables vertical scrolling */
-  max-height: 100vh;
+  max-height: 100%;
   box-shadow: 0 -5px 5px -5px rgba(0, 0, 0, 0.25);
 }
 .answerCommentSectionContainer{
@@ -41,4 +41,14 @@
   flex-direction: row;
   justify-content: center;
   width: 80% ;
+}
+
+.editAnswerContainer{
+  display: flex;
+  flex-direction: column;
+}
+
+.selectAnswerBtn{
+  background-color: red;
+  color: white;
 }

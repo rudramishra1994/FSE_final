@@ -12,7 +12,6 @@ class ApplicationController {
   }
 
   static async addQuestion(req, res) {
-
     const authorId = req.session.userId;
     try {
       const question = await ApplicationModel.addQuestion(
@@ -76,6 +75,33 @@ class ApplicationController {
     }
   }
 
+
+  static async getSelectedAnswer(req, res) {
+    try {
+      const question = await ApplicationModel.getSelectedAnswer(req.params.aid);
+      if (!question) {
+        return res.status(404).send("Question not found");
+      }
+      res.json(question);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  }
+
+  static async getQuestionByIdWithTags(req, res) {
+    try {
+      const { question, tags } = await ApplicationModel.getQuestionByIdWithTags(
+        req.params.qid
+      );
+      if (!question) {
+        return res.status(404).send("Question not found");
+      }
+      res.status(201).json({ question, tags });
+    } catch (error) {
+      res.status(500).send(error.message || "Error retrieving question");
+    }
+  }
+
   static async getAnswersForQuestion(req, res) {
     try {
       const page = parseInt(req.query.page) || 1;
@@ -90,8 +116,6 @@ class ApplicationController {
       res.status(500).send(error.message);
     }
   }
-
-
 
   static async getAnswersGivenByUser(req, res) {
     try {
@@ -108,9 +132,6 @@ class ApplicationController {
       res.status(500).send(error.message);
     }
   }
-
-
-
 
   static async getQuestionsByTag(req, res) {
     try {
@@ -153,11 +174,12 @@ class ApplicationController {
       const limit = parseInt(req.query.limit) || 5;
       const userId = req.session.userId;
 
-      const { questions, total } = await ApplicationModel.getQuestionsWithTagsForCurrentUser(
-        page,
-        limit,
-        userId
-      );
+      const { questions, total } =
+        await ApplicationModel.getQuestionsWithTagsForCurrentUser(
+          page,
+          limit,
+          userId
+        );
 
       res.json({
         questions,
@@ -222,7 +244,12 @@ class ApplicationController {
       const order = req.query.order;
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 5;
-      const { questions, total } = await ApplicationModel.searchQuestions(query, order, page, limit);
+      const { questions, total } = await ApplicationModel.searchQuestions(
+        query,
+        order,
+        page,
+        limit
+      );
       res.json({
         questions,
         total,
@@ -237,7 +264,9 @@ class ApplicationController {
   static async getTagsCreatedByUser(req, res) {
     try {
       const userid = req.session.userId;
-      const tagsWithCounts = await ApplicationModel.getTagsCreatedByUser(userid);
+      const tagsWithCounts = await ApplicationModel.getTagsCreatedByUser(
+        userid
+      );
       res.json(tagsWithCounts);
     } catch (error) {
       res.status(500).send(error.message);
@@ -277,18 +306,16 @@ class ApplicationController {
   static async login(req, res) {
     try {
       const { username, password } = req.body;
-      const {user,userid} = await User.loginUser(username, password);
+      const { user, userid } = await User.loginUser(username, password);
 
       req.session.userId = userid;
       res.json({ user });
     } catch (error) {
       console.error("Login error:", error.message);
-      res
-        .status(401)
-        .json({
-          message:
-            error.message || "An error occurred while attempting to log in",
-        });
+      res.status(401).json({
+        message:
+          error.message || "An error occurred while attempting to log in",
+      });
     }
   }
 
@@ -426,6 +453,102 @@ class ApplicationController {
       });
     } catch (error) {
       res.status(500).send(error.message);
+    }
+  }
+
+  static async updateUserTag(req, res) {
+    try {
+      const { tid, name } = req.body.params;
+      const userid = req.session.userId;
+      await ApplicationModel.updateUserTag(userid, tid, name);
+      res.status(201).json({
+        message: "Tag successfully edited",
+      });
+    } catch (error) {
+      res.status(500).send(error.message || "Tag Update Failed");
+    }
+  }
+
+  static async updateQuestion(req, res) {
+    try {
+      const { qid, title, text, tagInput} = req.body.params;
+      const userid = req.session.userId;
+      await ApplicationModel.updateQuestion(qid, title, text, tagInput,userid);
+      res.status(201).json({
+        message: "Tag successfully edited",
+      });
+    } catch (error) {
+      res.status(500).send(error.message || "Tag Update Failed");
+    }
+  }
+
+  static async updateSelectedAnswerForQuestion(req, res) {
+    try {
+      const {aid,qid} = req.body.params;
+      const userid = req.session.userId;
+      await ApplicationModel.updateSelectedAnswerForQuestion(aid,qid,userid);
+      res.status(201).json({
+        message: "Tag successfully edited",
+      });
+    } catch (error) {
+      res.status(500).send(error.message || "Tag Update Failed");
+    }
+  }
+
+  static async updateAnswer(req, res) {
+    try {
+      const { aid, text} = req.body.params;
+     
+      await ApplicationModel.updateAnswer(aid, text);
+      res.status(201).json({
+        message: "Tag successfully edited",
+      });
+    } catch (error) {
+      res.status(500).send(error.message || "Tag Update Failed");
+    }
+  }
+
+
+  static async deleteUserTag(req, res) {
+    try {
+      const { tid } = req.params;
+      const userid = req.session.userId;
+      await ApplicationModel.deleteUserTag(tid, userid);
+      res.status(201).json({
+        message: "Tag successfully deleted",
+      });
+    } catch (error) {
+      res.status(500).send(error.message || "Tag Update Failed");
+    }
+  }
+
+
+
+  static async deleteAnswer(req, res) {
+    try {
+      const { aid } = req.params;
+      const userid = req.session.userId;
+      await ApplicationModel.deleteAnswer(aid, userid);
+      res.status(201).json({
+        message: "Tag successfully deleted",
+      });
+    } catch (error) {
+      res.status(500).send(error.message || "Tag Update Failed");
+    }
+  }
+
+
+
+  static async deleteQuestionByID(req, res) {
+    try {
+      const { qid } = req.params;
+      const userid = req.session.userId;
+      await ApplicationModel.deleteQuestionByID(qid, userid);
+      res.status(201).json({
+        message: "Question successfully deleted",
+      });
+    } catch (error) {
+      res.status(500).send(error.message || "Tag Update Failed");
     }
   }
 }

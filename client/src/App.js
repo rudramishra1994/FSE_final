@@ -31,8 +31,8 @@ const App = () => {
   const addNewQuestion = async (title, text, tagInputs, askDate) => {
     try {
       await appModel.addQuestion(title, text, tagInputs, askDate);
-      const updatedQuestions = await appModel.getQuestionsWithTags("newest");
-      setQuestions(updatedQuestions);
+      // const updatedQuestions = await appModel.getQuestionsWithTags("newest");
+      // setCurrentPage(updatedQuestions);
     } catch (error) {
       console.error("Failed to perform operations on questions:", error);
       throw error;
@@ -60,8 +60,8 @@ const App = () => {
   const incrementViewCount = async (qid) => {
     try {
       await appModel.incrementViewCount(qid);
-      const updatedQuestions = await appModel.getQuestionsWithTags("newest");
-      setQuestions(updatedQuestions);
+      //const updatedQuestions = await appModel.getQuestionsWithTags("newest");
+      //setQuestions(updatedQuestions);
     } catch (error) {
       console.error("Failed to increment view count:", error);
     }
@@ -69,9 +69,8 @@ const App = () => {
 
   const handleQuestionNavClick = async () => {
     try {
-      const data = await appModel.getQuestionsWithTags("newest");
+      
       setCurrentPage("all-questions");
-      setQuestions(data.questions);
       setSearchTerm("");
     } catch (error) {
       console.error("Could not load all Questions:", error);

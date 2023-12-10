@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import AnswerHeader from "./AnswerHeader";
 import QuestionBody from "./QuestionBody";
 import AnswerList from "./AnswerList";
-// import { useParams,useNavigate } from 'react-router-dom';
+import "./AnswerList.css";
 import ApplicationModel from "../../models/ApplicationModel";
 import "./QuestionDetailPage.css";
+import AnswerCard from "./AnswerCard";
 
 const appModel = new ApplicationModel();
 const PAGE_SIZE = 5;
@@ -20,6 +21,8 @@ const QuestionDetailPage = ({
   const [currentPaginationPage, setCurrentPaginationPage] = useState(1);
   const [loadingError, setLoadingError] = useState("");
   const [totalPages, setTotalPages] = useState(0);
+  const [selectedAnswerId,setSelectedAnswerID] = useState('');
+  const [selectAnswer,setSelectedAnswer] = useState(null);
   // const navigate = useNavigate();
   //const parentAnswer = 'question';
   const handlePostAnswerBtnClick = () => {
@@ -31,6 +34,11 @@ const QuestionDetailPage = ({
     try {
       const q = await appModel.getQuestionById(qid);
       const data = await appModel.getAnswersForQuestion(qid, page, PAGE_SIZE);
+      let selectedanswer = null;
+      if (q.selectedanswer) {
+        selectedanswer = await appModel.getSelectedAnswer(q.selectedanswer);
+      }
+      setSelectedAnswer(selectedanswer)
       setTotalPages(data.totalPages);
       setQuestion(q);
       setAnswers(data.answers);
@@ -41,7 +49,7 @@ const QuestionDetailPage = ({
 
   useEffect(() => {
     fetchData(currentPaginationPage);
-  }, [currentPaginationPage]);
+  }, [currentPaginationPage,selectedAnswerId]);
 
   const handleNextClick = () => {
     const nextPage = currentPaginationPage + 1;
@@ -68,9 +76,14 @@ const QuestionDetailPage = ({
               handleAskQuestionClick={handleAskQuestionClick} 
             />
             <QuestionBody question={question} qid={qid} user={user} />
-
-            <div></div>
           </div>
+          {selectAnswer && user && question && (
+          <div className = 'selectedanswercontainer'>
+            <AnswerCard answer={selectAnswer} user={user} setSelectedAnswer={setSelectedAnswer} question = {question} />
+          </div>
+            
+        
+        )}
 
           <div className="answerListContainer">
             {loadingError ? (
@@ -78,7 +91,7 @@ const QuestionDetailPage = ({
             ) : answers.length === 0 ? (
               <div className="noComments">No Answers to display.</div>
             ) : (
-              <AnswerList answers={answers} user={user} />
+              <AnswerList answers={answers} user={user} question={question} setSelectedAnswer={setSelectedAnswerID} />
             )}
           </div>
           <div className="paginationContainer">

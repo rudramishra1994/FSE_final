@@ -18,3 +18,30 @@
   #submitQuestion{
     width: fit-content;
   }
+
+
+  .save-button {
+    background-color: green; /* Green background */
+    color: white; /* White text */
+    padding: 10px 15px; /* Adjust padding as needed */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    margin-right: 10px; /* Margin to separate from the Delete button */
+  }
+  
+  /* Styles for the Delete button */
+  .delete-button {
+    background-color: red; /* Red background */
+    color: white; /* White text */
+    padding: 10px 15px; /* Adjust padding as needed */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+  }
+  
+  /* Hover effects for buttons */
+  .save-button:hover,
+  .delete-button:hover {
+    opacity: 0.9; /* Slight opacity change on hover */
+  }

@@ -21,7 +21,7 @@ const LoginForm = ({ onRegisterClick,onBackClick,setUser,setCurrentPage })=>{
             clearForm();
             setCurrentPage('all-questions');
           } else {
-            setRegError(result.error);
+            setRegError('Invalid Credentials');
           }
         }
     }
@@ -52,9 +52,9 @@ const LoginForm = ({ onRegisterClick,onBackClick,setUser,setCurrentPage })=>{
     return (
       <div className='loginContainer'>
            <button className='backButton' onClick={onBackClick}>&larr; Back</button>
-        <h2>Login your account</h2>
+        <h2>Login to your account</h2>
         {regError && <div className="error">{regError}</div>}
-        <form className = 'form'  onSubmit={handleSubmit}>
+        <form className = 'form'  onSubmit={handleSubmit} noValidate>
 
             <input className = 'loginInput' type="text" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} placeholder="username" />
             {errors.username && <div className='error'>{errors.username}</div>}
